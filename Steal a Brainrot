@@ -1,5 +1,5 @@
 -- LocalScript em StarterPlayerScripts
--- Upwalk + ESP + AntiLag (hardcore) + Speed ajustável + Painel arrastável tema c00lkidd
+-- Upwalk (sem travar) + ESP + AntiLag hardcore + Painel arrastável tema c00lkidd
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -31,7 +31,7 @@ Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 12)
 -- Painel
 local container = Instance.new("Frame")
 container.Position = UDim2.new(0.65, 0, 0.6, 0)
-container.Size = UDim2.new(0, 240, 0, 240)
+container.Size = UDim2.new(0, 240, 0, 200)
 container.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 container.BackgroundTransparency = 0.15
 container.BorderSizePixel = 0
@@ -77,19 +77,6 @@ end
 local upwalkBtn  = makeButton("Upwalk: OFF")
 local espBtn     = makeButton("ESP: OFF")
 local lagBtn     = makeButton("Anti-Lag: OFF")
-local speedBtn   = makeButton("Velocidade: 16") -- padrão Roblox é 16
-
--- Caixa de texto para velocidade
-local speedBox = Instance.new("TextBox")
-speedBox.Size = UDim2.new(1, -10, 0, 35)
-speedBox.Text = "16"
-speedBox.Font = Enum.Font.GothamBold
-speedBox.TextScaled = true
-speedBox.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-speedBox.TextColor3 = Color3.fromRGB(255, 0, 0)
-speedBox.Visible = false
-speedBox.Parent = container
-Instance.new("UICorner", speedBox).CornerRadius = UDim.new(0, 10)
 
 --========================
 -- Abrir/fechar painel
@@ -145,7 +132,7 @@ do
 end
 
 --========================
--- Upwalk
+-- Upwalk (sem travar)
 --========================
 local function getHRP(plr)
 	local char = plr.Character or plr.CharacterAdded:Wait()
@@ -153,7 +140,7 @@ local function getHRP(plr)
 end
 
 local upwalkEnabled = false
-local ascendSpeed = 18
+local ascendSpeed = 3 -- sobe devagar e suave
 local stepConn = nil
 
 local function setUpwalk(state)
@@ -169,7 +156,8 @@ local function setUpwalk(state)
 		stepConn = RunService.RenderStepped:Connect(function()
 			local hrp = getHRP(player)
 			if not hrp then return end
-			hrp.AssemblyLinearVelocity = Vector3.new(0, ascendSpeed, 0)
+			-- só adiciona um "impulso" pra cima, não trava o movimento
+			hrp.CFrame = hrp.CFrame + Vector3.new(0, ascendSpeed * RunService.Heartbeat:Wait(), 0)
 		end)
 	end
 end
@@ -179,7 +167,7 @@ upwalkBtn.MouseButton1Click:Connect(function()
 end)
 
 --========================
--- ESP
+-- ESP (reforçado)
 --========================
 local espEnabled = false
 
@@ -188,42 +176,13 @@ local function createHighlight(char)
 	if char:FindFirstChild("ESP_Highlight") then return end
 	local hl = Instance.new("Highlight")
 	hl.Name = "ESP_Highlight"
-	hl.FillTransparency = 0.8
-	hl.OutlineTransparency = 0
-	hl.FillColor = Color3.fromRGB(200, 0, 0)
-	hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-	hl.Adornee = char
+	hl.FillTransparency = 0.4 -- mais sólido
+	hl.OutlineTransparency = 0 -- totalmente visível
+	hl.FillColor = Color3.fromRGB(255, 0, 0) -- vermelho vivo
+	hl.OutlineColor = Color3.fromRGB(255, 50, 50) -- borda vermelha mais clara
+	hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- sempre visível, mesmo atrás de paredes
 	hl.Parent = char
 end
-
-local function enableESP()
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if plr ~= player then
-			createHighlight(plr.Character or plr.CharacterAdded:Wait())
-			plr.CharacterAdded:Connect(function(char)
-				if espEnabled then
-					task.wait(1)
-					createHighlight(char)
-				end
-			end)
-		end
-	end
-end
-
-local function disableESP()
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if plr ~= player and plr.Character then
-			local hl = plr.Character:FindFirstChild("ESP_Highlight")
-			if hl then hl:Destroy() end
-		end
-	end
-end
-
-espBtn.MouseButton1Click:Connect(function()
-	espEnabled = not espEnabled
-	espBtn.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
-	if espEnabled then enableESP() else disableESP() end
-end)
 
 --========================
 -- Anti-Lag hardcore
@@ -267,31 +226,4 @@ end
 
 lagBtn.MouseButton1Click:Connect(function()
 	setAntiLag(not lagEnabled)
-end)
-
---========================
--- Velocidade
---========================
-local speedEnabled = false
-local humanoid = player.Character:WaitForChild("Humanoid")
-local defaultWalk = humanoid.WalkSpeed
-
--- Abre a caixinha de input
-speedBtn.MouseButton1Click:Connect(function()
-	speedBox.Visible = not speedBox.Visible
-end)
-
--- Quando digitar e apertar Enter
-speedBox.FocusLost:Connect(function(enterPressed)
-	if enterPressed then
-		local value = tonumber(speedBox.Text)
-		if value and value > 0 then
-			humanoid.WalkSpeed = value
-			speedBtn.Text = "Velocidade: " .. value
-		else
-			humanoid.WalkSpeed = defaultWalk
-			speedBtn.Text = "Velocidade: " .. defaultWalk
-		end
-		speedBox.Visible = false
-	end
 end)
