@@ -169,12 +169,13 @@ local espEnabled = false
 local function createHighlight(char)
 	if not char:FindFirstChild("HumanoidRootPart") then return end
 	if char:FindFirstChild("ESP_Highlight") then return end
+	
 	local hl = Instance.new("Highlight")
 	hl.Name = "ESP_Highlight"
-	hl.FillTransparency = 0.8
-	hl.OutlineTransparency = 0
-	hl.FillColor = Color3.fromRGB(200, 0, 0)
-	hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+	hl.FillTransparency = 5 -- sem preenchimento (só borda)
+	hl.FillTransparency = 0
+    hl.FillColor = Color3.fromRGB(200, 0, 0)
+	hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- aparece através de paredes
 	hl.Adornee = char
 	hl.Parent = char
 end
