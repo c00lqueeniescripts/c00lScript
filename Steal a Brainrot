@@ -1,5 +1,5 @@
 -- LocalScript em StarterPlayerScripts
--- Upwalk (sem travar) + ESP + AntiLag hardcore + Painel arrastável tema c00lkidd
+-- Upwalk + ESP + AntiLag (hardcore) + Painel arrastável com tema c00lkidd
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -16,33 +16,32 @@ screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Botão abrir/fechar (quadrado dark)
-local toggleBtn = Instance.new("TextButton")
+-- Botão de abrir/fechar (com foto c00lkidd)
+local toggleBtn = Instance.new("ImageButton")
 toggleBtn.Size = UDim2.new(0, 60, 0, 60)
 toggleBtn.Position = UDim2.new(0, 20, 0.5, -30)
 toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-toggleBtn.Text = "≡"
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextScaled = true
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Image = "rbxassetid://1125510" -- 🔥 Troque pelo ID da imagem c00lkidd que quiser
 toggleBtn.Parent = screenGui
 Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 12)
 
--- Painel
+-- Painel principal
 local container = Instance.new("Frame")
 container.Position = UDim2.new(0.65, 0, 0.6, 0)
 container.Size = UDim2.new(0, 240, 0, 200)
 container.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-container.BackgroundTransparency = 0.15
 container.BorderSizePixel = 0
+container.BackgroundTransparency = 0.15
 container.Active = true
-container.Visible = false
+container.Visible = false -- começa fechado
 container.Parent = screenGui
 
+-- Glow estilo c00lkidd
 local stroke = Instance.new("UIStroke", container)
 stroke.Thickness = 4
 stroke.Color = Color3.fromRGB(255, 0, 0)
 stroke.Transparency = 0.3
+
 Instance.new("UICorner", container).CornerRadius = UDim.new(0, 18)
 
 local list = Instance.new("UIListLayout", container)
@@ -51,9 +50,6 @@ list.FillDirection = Enum.FillDirection.Vertical
 list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 list.VerticalAlignment = Enum.VerticalAlignment.Center
 
---========================
--- Botões estilo c00lkidd
---========================
 local function makeButton(text)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1, -10, 0, 40)
@@ -69,7 +65,7 @@ local function makeButton(text)
 	local stroke = Instance.new("UIStroke", btn)
 	stroke.Thickness = 2
 	stroke.Transparency = 0.2
-	stroke.Color = Color3.fromRGB(120, 0, 0) -- vermelho escuro
+	stroke.Color = Color3.fromRGB(120, 0, 0) -- vermelho escuro 🔴
 
 	return btn
 end
@@ -132,7 +128,7 @@ do
 end
 
 --========================
--- Upwalk (sem travar)
+-- Upwalk
 --========================
 local function getHRP(plr)
 	local char = plr.Character or plr.CharacterAdded:Wait()
@@ -140,7 +136,7 @@ local function getHRP(plr)
 end
 
 local upwalkEnabled = false
-local ascendSpeed = 3 -- sobe devagar e suave
+local ascendSpeed = 18
 local stepConn = nil
 
 local function setUpwalk(state)
@@ -156,8 +152,7 @@ local function setUpwalk(state)
 		stepConn = RunService.RenderStepped:Connect(function()
 			local hrp = getHRP(player)
 			if not hrp then return end
-			-- só adiciona um "impulso" pra cima, não trava o movimento
-			hrp.CFrame = hrp.CFrame + Vector3.new(0, ascendSpeed * RunService.Heartbeat:Wait(), 0)
+			hrp.AssemblyLinearVelocity = Vector3.new(0, ascendSpeed, 0)
 		end)
 	end
 end
@@ -167,7 +162,7 @@ upwalkBtn.MouseButton1Click:Connect(function()
 end)
 
 --========================
--- ESP (reforçado)
+-- ESP
 --========================
 local espEnabled = false
 
@@ -176,16 +171,45 @@ local function createHighlight(char)
 	if char:FindFirstChild("ESP_Highlight") then return end
 	local hl = Instance.new("Highlight")
 	hl.Name = "ESP_Highlight"
-	hl.FillTransparency = 0.4 -- mais sólido
-	hl.OutlineTransparency = 0 -- totalmente visível
-	hl.FillColor = Color3.fromRGB(255, 0, 0) -- vermelho vivo
-	hl.OutlineColor = Color3.fromRGB(255, 50, 50) -- borda vermelha mais clara
-	hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- sempre visível, mesmo atrás de paredes
+	hl.FillTransparency = 0.8
+	hl.OutlineTransparency = 0
+	hl.FillColor = Color3.fromRGB(200, 0, 0)
+	hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+	hl.Adornee = char
 	hl.Parent = char
 end
 
+local function enableESP()
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= player then
+			createHighlight(plr.Character or plr.CharacterAdded:Wait())
+			plr.CharacterAdded:Connect(function(char)
+				if espEnabled then
+					task.wait(1)
+					createHighlight(char)
+				end
+			end)
+		end
+	end
+end
+
+local function disableESP()
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= player and plr.Character then
+			local hl = plr.Character:FindFirstChild("ESP_Highlight")
+			if hl then hl:Destroy() end
+		end
+	end
+end
+
+espBtn.MouseButton1Click:Connect(function()
+	espEnabled = not espEnabled
+	espBtn.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+	if espEnabled then enableESP() else disableESP() end
+end)
+
 --========================
--- Anti-Lag hardcore
+-- Anti-Lag (modo hardcore)
 --========================
 local lagEnabled = false
 local oldSettings = {}
@@ -205,6 +229,7 @@ local function setAntiLag(state)
 		Lighting.Ambient = Color3.fromRGB(255, 255, 255)
 		Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
 
+		-- desliga partículas/texturas/reflexos
 		for _, obj in ipairs(workspace:GetDescendants()) do
 			if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Fire") or obj:IsA("Smoke") then
 				obj.Enabled = false
