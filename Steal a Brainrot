@@ -1,48 +1,49 @@
 -- LocalScript em StarterPlayerScripts
--- Upwalk + ESP (Highlight nos outros players) + Painel arrastável
+-- Upwalk + ESP + AntiLag (hardcore) + Speed ajustável + Painel arrastável tema c00lkidd
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 local player = Players.LocalPlayer
 
 --========================
--- Funções utilitárias
---========================
-local function getCharacter(plr)
-	local char = plr.Character or plr.CharacterAdded:Wait()
-	return char
-end
-
-local function getHumanoidRootPart(plr)
-	local char = getCharacter(plr)
-	local hrp = char:FindFirstChild("HumanoidRootPart")
-	if not hrp then
-		hrp = char:WaitForChild("HumanoidRootPart")
-	end
-	return hrp
-end
-
---========================
--- UI
+-- UI principal
 --========================
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "UpwalkESP_UI"
+screenGui.Name = "MainUI"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
+-- Botão abrir/fechar (quadrado dark)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 60, 0, 60)
+toggleBtn.Position = UDim2.new(0, 20, 0.5, -30)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleBtn.Text = "≡"
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.TextScaled = true
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Parent = screenGui
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 12)
+
+-- Painel
 local container = Instance.new("Frame")
-container.Position = UDim2.new(0.7, 0, 0.7, 0)
-container.Size = UDim2.new(0, 220, 0, 110)
-container.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-container.BackgroundTransparency = 0.2
+container.Position = UDim2.new(0.65, 0, 0.6, 0)
+container.Size = UDim2.new(0, 240, 0, 240)
+container.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+container.BackgroundTransparency = 0.15
 container.BorderSizePixel = 0
 container.Active = true
+container.Visible = false
 container.Parent = screenGui
 
-local corner = Instance.new("UICorner", container)
-corner.CornerRadius = UDim.new(0, 16)
+local stroke = Instance.new("UIStroke", container)
+stroke.Thickness = 4
+stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.Transparency = 0.3
+Instance.new("UICorner", container).CornerRadius = UDim.new(0, 18)
 
 local list = Instance.new("UIListLayout", container)
 list.Padding = UDim.new(0, 8)
@@ -50,33 +51,57 @@ list.FillDirection = Enum.FillDirection.Vertical
 list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 list.VerticalAlignment = Enum.VerticalAlignment.Center
 
+--========================
+-- Botões estilo c00lkidd
+--========================
 local function makeButton(text)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1, -10, 0, 48)
+	btn.Size = UDim2.new(1, -10, 0, 40)
 	btn.Text = text
 	btn.Font = Enum.Font.GothamBold
 	btn.TextScaled = true
-	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+	btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	btn.AutoButtonColor = true
 	btn.Parent = container
 
-	local icorner = Instance.new("UICorner", btn)
-	icorner.CornerRadius = UDim.new(0, 12)
-
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 12)
 	local stroke = Instance.new("UIStroke", btn)
 	stroke.Thickness = 2
-	stroke.Transparency = 0.4
-	stroke.Color = Color3.fromRGB(255, 255, 255)
+	stroke.Transparency = 0.2
+	stroke.Color = Color3.fromRGB(120, 0, 0) -- vermelho escuro
 
 	return btn
 end
 
-local upwalkBtn = makeButton("Upwalk: OFF")
-local espBtn    = makeButton("ESP: OFF")
+local upwalkBtn  = makeButton("Upwalk: OFF")
+local espBtn     = makeButton("ESP: OFF")
+local lagBtn     = makeButton("Anti-Lag: OFF")
+local speedBtn   = makeButton("Velocidade: 16") -- padrão Roblox é 16
+
+-- Caixa de texto para velocidade
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(1, -10, 0, 35)
+speedBox.Text = "16"
+speedBox.Font = Enum.Font.GothamBold
+speedBox.TextScaled = true
+speedBox.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+speedBox.TextColor3 = Color3.fromRGB(255, 0, 0)
+speedBox.Visible = false
+speedBox.Parent = container
+Instance.new("UICorner", speedBox).CornerRadius = UDim.new(0, 10)
 
 --========================
--- Drag do container
+-- Abrir/fechar painel
+--========================
+local panelOpen = false
+toggleBtn.MouseButton1Click:Connect(function()
+	panelOpen = not panelOpen
+	container.Visible = panelOpen
+end)
+
+--========================
+-- Drag do painel
 --========================
 do
 	local dragging = false
@@ -120,11 +145,15 @@ do
 end
 
 --========================
--- Lógica: Upwalk
+-- Upwalk
 --========================
+local function getHRP(plr)
+	local char = plr.Character or plr.CharacterAdded:Wait()
+	return char:WaitForChild("HumanoidRootPart")
+end
+
 local upwalkEnabled = false
 local ascendSpeed = 18
-local horizontalKeep = true
 local stepConn = nil
 
 local function setUpwalk(state)
@@ -138,15 +167,9 @@ local function setUpwalk(state)
 
 	if upwalkEnabled then
 		stepConn = RunService.RenderStepped:Connect(function()
-			local hrp = getHumanoidRootPart(player)
+			local hrp = getHRP(player)
 			if not hrp then return end
-
-			local vel = hrp.AssemblyLinearVelocity
-			local newY = ascendSpeed
-			local newX, newZ = vel.X, vel.Z
-			if not horizontalKeep then newX, newZ = 0, 0 end
-
-			hrp.AssemblyLinearVelocity = Vector3.new(newX, newY, newZ)
+			hrp.AssemblyLinearVelocity = Vector3.new(0, ascendSpeed, 0)
 		end)
 	end
 end
@@ -156,20 +179,18 @@ upwalkBtn.MouseButton1Click:Connect(function()
 end)
 
 --========================
--- Lógica: ESP (Highlight nos players)
+-- ESP
 --========================
 local espEnabled = false
-local highlights = {}
 
 local function createHighlight(char)
 	if not char:FindFirstChild("HumanoidRootPart") then return end
 	if char:FindFirstChild("ESP_Highlight") then return end
-
 	local hl = Instance.new("Highlight")
 	hl.Name = "ESP_Highlight"
 	hl.FillTransparency = 0.8
 	hl.OutlineTransparency = 0
-	hl.FillColor = Color3.fromRGB(0, 170, 255)
+	hl.FillColor = Color3.fromRGB(200, 0, 0)
 	hl.OutlineColor = Color3.fromRGB(255, 255, 255)
 	hl.Adornee = char
 	hl.Parent = char
@@ -178,10 +199,10 @@ end
 local function enableESP()
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= player then
-			createHighlight(getCharacter(plr))
+			createHighlight(plr.Character or plr.CharacterAdded:Wait())
 			plr.CharacterAdded:Connect(function(char)
 				if espEnabled then
-					task.wait(1) -- espera personagem carregar
+					task.wait(1)
 					createHighlight(char)
 				end
 			end)
@@ -201,10 +222,76 @@ end
 espBtn.MouseButton1Click:Connect(function()
 	espEnabled = not espEnabled
 	espBtn.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+	if espEnabled then enableESP() else disableESP() end
+end)
 
-	if espEnabled then
-		enableESP()
+--========================
+-- Anti-Lag hardcore
+--========================
+local lagEnabled = false
+local oldSettings = {}
+
+local function setAntiLag(state)
+	lagEnabled = state
+	lagBtn.Text = "Anti-Lag: " .. (lagEnabled and "ON" or "OFF")
+
+	if lagEnabled then
+		oldSettings.Ambient = Lighting.Ambient
+		oldSettings.GlobalShadows = Lighting.GlobalShadows
+		oldSettings.FogEnd = Lighting.FogEnd
+		oldSettings.OutdoorAmbient = Lighting.OutdoorAmbient
+
+		Lighting.GlobalShadows = false
+		Lighting.FogEnd = 9e9
+		Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+		Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Fire") or obj:IsA("Smoke") then
+				obj.Enabled = false
+			elseif obj:IsA("Decal") or obj:IsA("Texture") then
+				obj.Transparency = 1
+			elseif obj:IsA("MeshPart") then
+				obj.Material = Enum.Material.Plastic
+			end
+		end
+
+		settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 	else
-		disableESP()
+		if oldSettings.Ambient then Lighting.Ambient = oldSettings.Ambient end
+		if oldSettings.GlobalShadows ~= nil then Lighting.GlobalShadows = oldSettings.GlobalShadows end
+		if oldSettings.FogEnd then Lighting.FogEnd = oldSettings.FogEnd end
+		if oldSettings.OutdoorAmbient then Lighting.OutdoorAmbient = oldSettings.OutdoorAmbient end
+	end
+end
+
+lagBtn.MouseButton1Click:Connect(function()
+	setAntiLag(not lagEnabled)
+end)
+
+--========================
+-- Velocidade
+--========================
+local speedEnabled = false
+local humanoid = player.Character:WaitForChild("Humanoid")
+local defaultWalk = humanoid.WalkSpeed
+
+-- Abre a caixinha de input
+speedBtn.MouseButton1Click:Connect(function()
+	speedBox.Visible = not speedBox.Visible
+end)
+
+-- Quando digitar e apertar Enter
+speedBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		local value = tonumber(speedBox.Text)
+		if value and value > 0 then
+			humanoid.WalkSpeed = value
+			speedBtn.Text = "Velocidade: " .. value
+		else
+			humanoid.WalkSpeed = defaultWalk
+			speedBtn.Text = "Velocidade: " .. defaultWalk
+		end
+		speedBox.Visible = false
 	end
 end)
