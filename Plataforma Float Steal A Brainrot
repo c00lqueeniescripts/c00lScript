@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 -- Configurações
-local jumpBoost = 64 -- altura do pulo (padrão Roblox = 50)
+local jumpBoost = 50 -- altura do pulo (padrão Roblox = 50)
 local platformHeight = -4 -- altura da plataforma em relação ao player
 
 -- Função que cria a plataforma e aumenta o jump
@@ -21,7 +21,7 @@ local function createPlatform(char)
 	platform.Size = Vector3.new(8, 1, 8)
 	platform.Anchored = true
 	platform.CanCollide = true
-	platform.Color = Color3.fromRGB(50, 200, 255) -- cor visível
+	platform.Color = Color3.fromRGB(75, 151, 75) -- cor visível
 	platform.Transparency = 0 -- totalmente visível
 	platform.Name = "FloatPlatform"
 	platform.Parent = workspace
