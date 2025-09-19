@@ -13,7 +13,7 @@ local function createPlatform(char)
 	local humanoid = char:WaitForChild("Humanoid")
 
 	-- Aumenta o pulo
-	humanoid.UseJumpPower = true
+	humanoid.UseJumpPower = false
 	humanoid.JumpPower = jumpBoost
 
 	-- Cria a plataforma
