@@ -1,7 +1,7 @@
 --[[	
 
 	/ ＲＯＣＬＯＴＨＥＳ
-	Version - 0.7.6:lerp()
+	Version - 0.7.7:lerp()
 	Link - discord.gg/HBzvWE6Rp3
 	
 	| This script requires a LOCAL folder "RClothesContent" to be added in ROBLOX's content folder, or it'll self-destruct itself
@@ -21,7 +21,7 @@
 	
 	
 	original version 0.7
-	local version 0.7.6:lerp()
+	local version 0.7.7:lerp()
 		
 
 
@@ -446,6 +446,7 @@ function RoClothes(Player)
 
 	GUIObject.HatButton = Instance.new("ImageButton")
 
+	-- variables --
 	local Mouse = Player:GetMouse()
 
 	local Method2CharacterFolder = game.Workspace:FindFirstChild("Method2CharacterFolder")
@@ -460,19 +461,22 @@ function RoClothes(Player)
 	local TS = game:GetService("TweenService")
 	local MPS = game:GetService("MarketplaceService")
 
-	local CVersion = "0.7.6:lerp()"
+	local CVersion = "0.7.7:lerp()"
 
-	local Method = 1
+	local Method = 2
 	local MaxMethod = 3
 
 	local MaxBreastsType = 4
-	local MaxTorsoType = 7
+	local MaxTorsoType = 8
 	local MaxArmType = 4
-	local MaxLegsType = 4
+	local MaxLegsType = 5
 	local MaxButtType = 3
 
 	local KEYBIND = Enum.KeyCode.Insert
 	local KeybindDetect = false
+
+	local hpKEYBIND = Enum.KeyCode.Equals
+	local hpKeybindDetect = false
 
 	local ClickExecute = false
 
@@ -484,6 +488,7 @@ function RoClothes(Player)
 
 	local AllConnect = {}
 	local MeshEditConnect = {}
+	local Debug = false
 
 	local SelectPlayer = Player.Name
 
@@ -505,6 +510,8 @@ function RoClothes(Player)
 
 	function Function.PlayerDataDefault()
 		return {
+			Character = nil,
+
 			CurrentClothes = {},
 			ClothesRecolor = {},
 			CurrentBundle = "nil",
@@ -534,6 +541,7 @@ function RoClothes(Player)
 			CatalogRemove = {},
 			SkinTone = nil,
 			NippleColor = nil,
+			CockScale = 1,
 			BreastsScale = 1,
 			ButtsScale = 1,
 			LegsScale = 1,
@@ -545,6 +553,7 @@ function RoClothes(Player)
 			ToggleBBC = false,
 			Cooldown = false,
 			updateCooldown = false,
+			FPsnap = false,
 			FPerson = false,
 			RealtimeBodyTransparency = true,
 			OldTransparency = {},
@@ -554,6 +563,8 @@ function RoClothes(Player)
 			SavedPreviousHP = 0,
 			SavedTopHP = 0,
 			SavedBottomHP = 0,
+			Healing = false,
+			HealProgress = 0,
 			HardcoreHP = false,
 			TopHP = "",
 			BottomHP = "",
@@ -934,7 +945,7 @@ function RoClothes(Player)
 					[1] = "Torso",
 				},
 				["Function"] = "BBCRodPhysics",
-				["Scale"] = "BreastsScale",
+				["Scale"] = "CockScale",
 				["AdjustScale"] = {"Size", "CFrame1"}
 
 			},
@@ -956,7 +967,7 @@ function RoClothes(Player)
 
 				},
 				["Function"] = "DarkPart",
-				["Scale"] = "BreastsScale",
+				["Scale"] = "CockScale",
 				["AdjustScale"] = {"Size", "CFrame"}
 			},
 			["BBC Balls"] = {
@@ -977,7 +988,7 @@ function RoClothes(Player)
 
 				},
 				["Function"] = "BBCBallPhysics",
-				["Scale"] = "BreastsScale",
+				["Scale"] = "CockScale",
 				["AdjustScale"] = {"Size", "CFrame"}
 			},
 			["EasterSack"] = {
@@ -999,7 +1010,7 @@ function RoClothes(Player)
 
 				},
 				["Function"] = "BBCBallPhysics",
-				["Scale"] = "BreastsScale",
+				["Scale"] = "CockScale",
 				["AdjustScale"] = {"Size", "CFrame"}
 			},
 			["Cock"] = {
@@ -1021,7 +1032,7 @@ function RoClothes(Player)
 					[1] = "Torso",
 				},
 				["Function"] = "BBCRodPhysics",
-				["Scale"] = "BreastsScale",
+				["Scale"] = "CockScale",
 				["AdjustScale"] = {"Size", "CFrame1"}
 			}, 
 			["Balls"] = {
@@ -1043,7 +1054,7 @@ function RoClothes(Player)
 					[1] = "Torso",
 				},
 				["Function"] = "BBCBallPhysics",
-				["Scale"] = "BreastsScale",
+				["Scale"] = "CockScale",
 				["AdjustScale"] = {"Size", "CFrame1"}
 			},
 			["Tip"] = {
@@ -1065,7 +1076,7 @@ function RoClothes(Player)
 					[2] = "Rod",
 				},
 				["Function"] = "DarkPart",
-				["Scale"] = "BreastsScale",
+				["Scale"] = "CockScale",
 				["AdjustScale"] = {"Size", "CFrame"}
 			},
 			["Left Breast Type 2"] = {
@@ -1904,6 +1915,67 @@ function RoClothes(Player)
 				["Scale"] = "ButtsScale",
 				["AdjustScale"] = {"Size", ["CFrame1"]=800}
 			},
+
+			["Right Leg5"] = {
+				["Instance"] = "Mesh",
+				["Name"] = "Right Leg Mesh",
+				["MeshId"] = "rbxasset://RClothesContent/15689547573.mesh",
+				["Size"] = Vector3.new(1.8530000448226929, 2.299999952316284, 1.8250000476837158),
+				["CFrame"] = CFrame.new(0.101165771, 0.120700002, -0.0378417969, 0.0227066502, -8.84762244e-07, -0.999742389, 1.53700825e-07, 1, -8.81499716e-07, 0.999742389, -1.33645287e-07, 0.0227066502),
+				["CFrame1"] = CFrame.new(0, -0.001, 0),
+				["Transparency"] = 0,
+				["Material"] = Enum.Material.SmoothPlastic,
+				["Color"] = {
+					["Tone"] = "Base",
+					["Color"] = "Parent"
+				},
+				["Parent"] = {
+					[1] = "Right Leg"
+				},
+				["Scale"] = "LegsScale",
+				["AdjustScale"] = {"Size", ["CFrame1"]=300},
+				["ParentTransparency"] = 1,
+				["Function"] = "PantsTexture"
+			}, 
+			["Left Leg5"] = {
+				["Instance"] = "Mesh",
+				["Name"] = "Left Leg Mesh",
+				["MeshId"] = "rbxasset://RClothesContent/15689547567.mesh",
+				["Size"] = Vector3.new(1.8530000448226929, 2.299999952316284, 1.8250000476837158),
+				["CFrame"] = CFrame.new(-0.020614624, 0.120699167, -0.0112304688, 0.0227067191, -8.84762244e-07, -0.99974215, 1.53700853e-07, 1, -8.81499545e-07, 0.99974215, -1.33645287e-07, 0.0227067191),
+				["CFrame1"] = CFrame.new(0, -0.001, 0),
+				["Transparency"] = 0,
+				["Material"] = Enum.Material.SmoothPlastic,
+				["Color"] = {
+					["Tone"] = "Base",
+					["Color"] = "Parent"
+				},
+				["Parent"] = {
+					[1] = "Left Leg"
+				},
+				["Scale"] = "LegsScale",
+				["AdjustScale"] = {"Size", ["CFrame1"]=300},
+				["ParentTransparency"] = 1,
+				["Function"] = "PantsTexture"
+			}, 
+			["Torso8"] = {
+				["Instance"] = "Mesh",
+				["Name"] = "Torso Mesh",
+				["MeshId"] = "rbxasset://RClothesContent/13085030579.mesh",
+				["Size"] = Vector3.new(1.0990766286849976, 2.240330934524536, 2.252163887023926),
+				["CFrame"] = CFrame.new(0.0160980225, -0.10021019, -0.0673675537, 0.00548222661, -7.65554717e-07, -0.999985158, 1.38493746e-07, 1, -7.64807226e-07, 0.999985158, -1.34298816e-07, 0.00548222661),
+				["Transparency"] = 0,
+				["Material"] = Enum.Material.SmoothPlastic,
+				["Color"] = {
+					["Tone"] = "Base",
+					["Color"] = "Parent"
+				},
+				["Parent"] = {
+					[1] = "Torso"
+				},
+				["ParentTransparency"] = 1,
+				["Function"] = "PantsTexture"
+			}, 
 			-- CLOTHES PARTS
 			["School Shirt"] = {
 				["Instance"] = "Mesh",
@@ -8003,6 +8075,7 @@ function RoClothes(Player)
 
 	local EditableProperty = {
 		"TextureId",
+		"Offset",
 		"Size",
 		"Transparency",
 		"MeshBasePartTransparency",
@@ -8675,6 +8748,20 @@ function RoClothes(Player)
 			},
 			["IsPreset"] = true
 		},
+		["[PRESET] FPerson Snap"] = {
+			["Preset"] = {
+				FPerson = true,
+				FPsnap = true,
+			},
+			["IsPreset"] = true
+		},
+		["[PRESET] FPerson SnapOff"] = {
+			["Preset"] = {
+				FPerson = true,
+				FPsnap = false,
+			},
+			["IsPreset"] = true
+		},
 		["[PRESET] Rudolph's Body Type"] = {
 			["Preset"] = {
 				TorsoType = 3,
@@ -8972,7 +9059,7 @@ function RoClothes(Player)
 		},
 		["Roblox Shirt"] = {
 			["Weld"] = {
-				[1] = "Torso Shirt"
+				[1] = "Torso Shirt",
 			}
 		},
 		["Roblox Butt Shirt"] = {
@@ -9486,8 +9573,6 @@ function RoClothes(Player)
 			}
 		},
 		["Remove Breasts"] = {
-			["Weld"] = {
-			},
 			["Unvisible"] = {
 				"Left Breast",
 				"Right Breast",
@@ -9686,6 +9771,7 @@ function RoClothes(Player)
 			["Size"] = Vector3.new(1,1,1),
 			["CFrame"] = CFrame.new(0,0,0),
 			["CFrame1"] = CFrame.new(0,0,0),
+			["Offset"] = Vector3.new(0,0,0),
 			["Transparency"] = 0,
 			["Reflectance"] = 0,
 			["MeshBasePartTransparency"] = 0,
@@ -10280,6 +10366,7 @@ function RoClothes(Player)
 		Pin.CanQuery = false
 		Pin.CanTouch = false
 		Pin.Massless = true
+		Pin.CustomPhysicalProperties = PhysicalProperties.new(0.0001,0,0,0,0)
 		Pin.Size = Vector3.new(0.052, 0.269, 0.218)
 
 		local Weld = Instance.new("Weld", Pin)
@@ -10800,6 +10887,19 @@ function RoClothes(Player)
 
 		local Weld = Object:FindFirstChildOfClass("Weld")
 		if Weld then
+			--[[
+			if Base.Name == "Torso" and Weld.Part0 == Base then
+				local invert0 = Weld.Part1.CFrame:ToObjectSpace(Weld.Part1.CFrame:ToWorldSpace(Weld.C1))
+				local invert1 = Weld.Part1.CFrame:ToObjectSpace(Weld.Part1.CFrame:ToWorldSpace(Weld.C0))
+				PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh[Object].CFrame = invert0
+				PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh[Object].CFrame1 = invert1
+				Weld.Part0 = Object
+				Weld.Part1 = Base
+				Weld.C0 = invert0
+				Weld.C1 = invert1
+				
+			end
+			]]
 			local CF = Weld.C0
 			local CF1 = Weld.C1
 
@@ -10962,6 +11062,7 @@ function RoClothes(Player)
 		)
 	end
 
+	local printed={}
 	function Function.Weld(MeshDetail, Character, Extra, Data)
 		if Character.Parent ~= nil then
 			setmetatable(MeshDetail, MetaClothes)
@@ -10972,6 +11073,10 @@ function RoClothes(Player)
 			local SIZE = MeshDetail["Size"]
 			local CFRAME = MeshDetail["CFrame"]
 			local CFRAME1 = MeshDetail["CFrame1"]
+			local OFFSET = MeshDetail["Offset"]
+			if OFFSET then
+				CFRAME = CFRAME+OFFSET
+			end
 			local TRANSPARENCY = MeshDetail["Transparency"]
 			local REFLECTANCE = MeshDetail["Reflectance"]
 			local MESHBASEPARTTRANSPARENCY = MeshDetail["MeshBasePartTransparency"]
@@ -10988,6 +11093,21 @@ function RoClothes(Player)
 			local DOUBLESIDED = MeshDetail["DoubleSided"]
 
 			local SHAPE = MeshDetail["Shape"]
+
+			if Debug == true then
+				for i, v in pairs(PartList) do
+					if NAME == v.Name and MESHID == v.MeshId then
+						if not printed[i] or printed[i] == false then
+							printed[i] = true
+							task.delay(.1,function()
+								printed[i] = false
+							end)
+							print(i)
+							break
+						end
+					end
+				end
+			end
 
 			local BodyPart = Character:FindFirstChild(PARENT[1])
 
@@ -11007,10 +11127,7 @@ function RoClothes(Player)
 
 						for _, v in pairs(CharacterValue.Value:GetChildren()) do
 							if v:IsA("BasePart") and table.find(Method2BodyPart, v.Name) then
-								if not v:HasTag("Visibility") then
-									v:SetAttribute("Visibility",v.Transparency)
-									v:AddTag("Visibility")
-								end
+								PlayerData[Data].CurrentPartList.ParentTransparency[v] = {v = v.Transparency}
 								if v.Name ~= "Head" then
 									PlayerData[Data].CurrentPartList.ParentTransparency[v] = {v = v.Transparency, T = 1}
 								end
@@ -11023,6 +11140,7 @@ function RoClothes(Player)
 								Part.CanQuery = false
 								Part.CanTouch = false
 								Part.Massless = true
+								Part.CustomPhysicalProperties = PhysicalProperties.new(0.0001,0,0,0,0)
 								Part.Color = v.Color
 
 								local Weld = Instance.new("Weld", Part)
@@ -11032,6 +11150,8 @@ function RoClothes(Player)
 						end
 					end
 				end
+			elseif Method == 2 then
+				OldCharacter = PlayerData[Data].Character
 			end
 
 			if BodyPart then
@@ -11098,17 +11218,8 @@ function RoClothes(Player)
 
 				if PARENTTRANSPARENCY ~= nil then
 					if OldCharacter and OldCharacter:FindFirstChild(Parent.Name) then
-						if not OldCharacter:FindFirstChild(Parent.Name):HasTag("Visibility") then
-							OldCharacter:FindFirstChild(Parent.Name):SetAttribute("Visibility",OldCharacter:FindFirstChild(Parent.Name).Transparency)
-							OldCharacter:FindFirstChild(Parent.Name):AddTag("Visibility")
-						end
 						PlayerData[Data].CurrentPartList.ParentTransparency[OldCharacter:FindFirstChild(Parent.Name)] = {D = OldCharacter:FindFirstChild(Parent.Name).Transparency, T = PARENTTRANSPARENCY}
 						--OldCharacter:FindFirstChild(Parent.Name).Transparency = PARENTTRANSPARENCY
-					elseif Method ~= 2 then
-						if not Parent:HasTag("Visibility") then
-							Parent:SetAttribute("Visibility",Parent.Transparency)
-							Parent:AddTag("Visibility")
-						end
 					end
 					PlayerData[Data].CurrentPartList.ParentTransparency[Parent] = {D = Parent.Transparency, T = PARENTTRANSPARENCY}
 					--Parent.Transparency = PARENTTRANSPARENCY
@@ -11155,6 +11266,7 @@ function RoClothes(Player)
 				ObjectInstance.CanQuery = false
 				ObjectInstance.CanTouch = false
 				ObjectInstance.Massless = true
+				ObjectInstance.CustomPhysicalProperties = PhysicalProperties.new(0.0001,0,0,0,0)
 
 				ObjectInstance.Name = NAME
 				ObjectInstance.Transparency = TRANSPARENCY
@@ -11214,10 +11326,6 @@ function RoClothes(Player)
 
 				if Handle then
 					if PlayerData[Data].CurrentBundle ~= "nil" then
-						if not Handle:HasTag("Visibility") then
-							Handle:SetAttribute("Visibility",Handle.Transparency)
-							Handle:AddTag("Visibility")
-						end
 						Handle.Transparency = 1
 
 						PlayerData[Data].CurrentPartList.ParentTransparency[Handle] = {D = 0, T = 1}
@@ -11300,6 +11408,7 @@ function RoClothes(Player)
 		local CHandle = CAccessory:FindFirstChildOfClass("Part")
 		local CAttachment = CHandle:FindFirstChildOfClass("Attachment")
 		local CSpecialMesh = CHandle:FindFirstChildOfClass("SpecialMesh")
+		CAccessory:AddTag("RoClothes")
 
 		PlayerData[Data].CurrentPartList["Accessory"][CAccessory.Name] = CAccessory
 
@@ -11344,6 +11453,7 @@ function RoClothes(Player)
 			CHandle.CanQuery = false
 			CHandle.CanTouch = false
 			CHandle.Massless = true
+			CHandle.CustomPhysicalProperties = PhysicalProperties.new(0.0001,0,0,0,0)
 
 			CAccessory.Parent = Character
 			v:Destroy()
@@ -11396,7 +11506,7 @@ function RoClothes(Player)
 		return IsAdded
 	end
 
-	function Function.HumanoidDescriptionLoader(Character, HumanoidDescription, CharacterAttachment, UseBodyColor, Data, useFace)
+	function Function.HumanoidDescriptionLoader(Character, HumanoidDescription, CharacterAttachment, UseBodyColor, Data, isCatalogUsername)
 		local AccessoryLoaderModel = Instance.new("Model", game.workspace)
 		local HumanoidAccessoryLoader = Instance.new("Humanoid", AccessoryLoaderModel)
 
@@ -11430,7 +11540,8 @@ function RoClothes(Player)
 			end
 		end
 
-		if PlayerData[Data].Face == true and useFace == true then
+		if isCatalogUsername == true then
+
 			if Character:FindFirstChild("Head") then
 				local LoadedAvatar = game:GetService("Players"):CreateHumanoidModelFromDescription(HumanoidDescription, Enum.HumanoidRigType.R6)
 				local head = LoadedAvatar:WaitForChild("Head")
@@ -11448,6 +11559,7 @@ function RoClothes(Player)
 					newHead.CanQuery = false
 					newHead.CanTouch = false
 					newHead.Massless = true
+					newHead.CustomPhysicalProperties = PhysicalProperties.new(0.0001,0,0,0,0)
 					newHead.Color = v.Color
 					newHead.Material = v.Material
 					newHead.Reflectance = v.Reflectance
@@ -11457,13 +11569,17 @@ function RoClothes(Player)
 					Weld.Part0 = v
 					Weld.Part1 = newHead
 
-					if head:FindFirstChildOfClass("Decal") then
-						if OldFC then
-							OldFC:Destroy()
+					if PlayerData[Data].Face == true then
+						if head:FindFirstChildOfClass("Decal") then
+							if OldFC then
+								OldFC:Destroy()
+							end
+							head:FindFirstChildOfClass("Decal"):Clone().Parent = newHead
+						elseif OldFC then
+							OldFC.Parent = newHead
 						end
-						head:FindFirstChildOfClass("Decal"):Clone().Parent = newHead
 					elseif OldFC then
-						OldFC.Parent = newHead
+						OldFC:Destroy()
 					end
 					if head:FindFirstChildOfClass("SpecialMesh") then
 						PlayerData[Data].CurrentPartList.ParentTransparency[v] = {v = v.Transparency, T = 1}
@@ -11476,12 +11592,53 @@ function RoClothes(Player)
 						local mesh = Instance.new("SpecialMesh",newHead)
 						mesh.MeshId = v.MeshId
 					end
+				elseif Method == 2 then
+					local oChar = game:GetService("Players")[Data].Character
+					local h = Character:FindFirstChild("Head")
+					PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh[h] = {Base = h}
+					h.Transparency = 0
+					PlayerData[Data].CurrentPartList.ParentTransparency[h] = {D = 1}
+					PlayerData[Data].CurrentPartList.ParentTransparency[oChar:FindFirstChild("Head")] = {D = oChar:FindFirstChild("Head").Transparency, T = 1}
+					if OldFC then
+						OldFC:Destroy()
+					end
+					if OldSM then
+						OldSM:Destroy()
+					end
+					local OldFC = oChar:FindFirstChild("Head"):FindFirstChildOfClass("Decal")
+					local OldSM = oChar:FindFirstChild("Head"):FindFirstChildOfClass("SpecialMesh")
+
+					if PlayerData[Data].Face == true then
+						if head:FindFirstChildOfClass("Decal") then
+							if OldFC then
+								OldFC.Transparency = 1
+								PlayerData[Data].CurrentPartList.ParentTransparency[OldFC] = {D = 0}
+							end
+							local d = head:FindFirstChildOfClass("Decal"):Clone()
+							PlayerData[Data].CurrentPartList.ParentTransparency[d] = {D = 1}
+							d.Parent = Character:FindFirstChild("Head")
+						elseif OldFC then
+							local o = OldFC:Clone()
+							PlayerData[Data].CurrentPartList.ParentTransparency[o] = {D = 1}
+							o.Parent = Character:FindFirstChild("Head")
+						end
+					elseif OldFC then
+						OldFC.Transparency = 1
+						PlayerData[Data].CurrentPartList.ParentTransparency[OldFC] = {D = 0}
+					end
+					if head:FindFirstChildOfClass("SpecialMesh") then
+						head:FindFirstChildOfClass("SpecialMesh"):Clone().Parent = Character:FindFirstChild("Head")
+					elseif OldSM then
+						OldSM:Clone().Parent = Character:FindFirstChild("Head")
+					end
 				else
-					if head:FindFirstChildOfClass("Decal") then
+					if head:FindFirstChildOfClass("Decal") and PlayerData[Data].Face == true then
 						if OldFC then
 							OldFC:Destroy()
 						end
 						head:FindFirstChildOfClass("Decal"):Clone().Parent = Character:FindFirstChild("Head")
+					elseif OldFC then
+						OldFC:Destroy()
 					end
 					if head:FindFirstChildOfClass("SpecialMesh") then
 						if OldSM then
@@ -11613,24 +11770,28 @@ function RoClothes(Player)
 			ExecutePlayer = game.Players:FindFirstChild(PlayerName) -- check if this function is called by Player name target(most of time 'Self')
 		end
 
+		local DataList = nil
 		local PartListPlayer = nil
 
 		if not ExecutePlayer then
 			if GUIObject.PlayerExecute.Text == "Self" then
 				ExecutePlayer = Player
-				PartListPlayer = PlayerData[ExecutePlayer.Name].CurrentPartList
+				DataList = PlayerData[ExecutePlayer.Name]
+				PartListPlayer = DataList.CurrentPartList
 			end
 		else
 			if PlayerData[ExecutePlayer.Name] == nil then
 				return
 			end
-			PartListPlayer = PlayerData[ExecutePlayer.Name].CurrentPartList
+			DataList = PlayerData[ExecutePlayer.Name]
+			PartListPlayer = DataList.CurrentPartList
 		end
-		-- below if is for ClickExecute
+		--[[ below if is for ClickExecute
 		if type(PlayerName) ~= "string" and Function.IsCharacter(PlayerName) then
-			if Function.TableFind(NPCs, PlayerName) == nil then 
+			if Function.TableFind(NPCs, PlayerName) == nil then
 				return
 			else
+				local NPC = Function.TableFind(NPCs, PlayerName)
 				for i, v in pairs(PlayerName:GetDescendants()) do
 					if v.ClassName == "MeshPart" or v:HasTag("RoClothes") then
 						if v.Parent == PlayerName:FindFirstChild("Torso") or v.Parent == PlayerName:FindFirstChild("Left Leg") or v.Parent == PlayerName:FindFirstChild("Right Leg") or
@@ -11639,18 +11800,40 @@ function RoClothes(Player)
 						end
 					end
 				end
+				if Method2CharacterFolder:FindFirstChild(NPC) then
+					for i, v in pairs(Method2CharacterFolder[NPC]:GetDescendants()) do
+						if v.ClassName == "MeshPart" or v:HasTag("RoClothes") then
+							if v.Parent == PlayerName:FindFirstChild("Torso") or v.Parent == PlayerName:FindFirstChild("Left Leg") or v.Parent == PlayerName:FindFirstChild("Right Leg") or
+								v.Parent == PlayerName:FindFirstChild("Left Arm") or v.Parent == PlayerName:FindFirstChild("Right Arm") or v:HasTag("RoClothes") then
+								v:Destroy()
+							end
+						end
+					end
+				end
 				if NPCClear == true then
 					PlayerData[Function.TableFind(NPCs, PlayerName)] = nil
 				end
 			end
 			return
+		end]]
+
+		if type(PlayerName) ~= "string" and Function.IsCharacter(PlayerName) then
+			if Function.TableFind(NPCs, PlayerName) == nil or not PlayerData[Function.TableFind(NPCs, PlayerName)] then
+				return
+			else
+				DataList = PlayerData[Function.TableFind(NPCs, PlayerName)]
+				PartListPlayer = DataList.CurrentPartList
+				if NPCClear == true then
+					PlayerData[Function.TableFind(NPCs, PlayerName)] = nil
+				end
+			end
 		end
 
-		if PlayerData[ExecutePlayer.Name]["Cooldown"] == true then
+		if DataList["Cooldown"] == true then
 			return
 		end
 
-		if PartListPlayer and ExecutePlayer.Character then
+		if PartListPlayer then
 			local OrganList = PartListPlayer["Organ"]
 			local ClothesList = PartListPlayer["Clothes"]
 			local AccessoryList = PartListPlayer["Accessory"]
@@ -11676,15 +11859,15 @@ function RoClothes(Player)
 
 			if ParentTransparencyList then
 				for Object, Property in pairs(ParentTransparencyList) do
-					local D = Property.Default
+					local D = Property.D
 					if D ~= nil then
 						Object.Transparency = D
+						Object.LocalTransparencyModifier = Object.Transparency
 					end
 				end
 			end
 
 			PlayerData[ExecutePlayer.Name].CurrentPartList = Function.PlayerDataDefault().CurrentPartList
-
 
 			--[[
 			if Method == 2 then
@@ -11810,7 +11993,8 @@ function RoClothes(Player)
 	function Function.Converter(Character, Data)
 		for _, v in pairs(Character:GetChildren()) do
 			if v:IsA("BasePart") and table.find(R15Transparency, v.Name) then
-				PlayerData[Data].CurrentPartList.ParentTransparency[v] = {v = v.Transparency, T = 1}
+				--v.Transparency = 1
+				PlayerData[Data].CurrentPartList.ParentTransparency[v] = {D=0,T=1}
 			end
 		end
 		--[[
@@ -11875,9 +12059,12 @@ function RoClothes(Player)
 					Part.CanCollide = false
 					Part.CanQuery = false
 					Part.CanTouch = false
-					Part.Massless = false
+					Part.Massless = true
+					Part.CustomPhysicalProperties = PhysicalProperties.new(0.0001,0,0,0,0)
 					Part.Size = R6Size[New]
 					Part.Material = Enum.Material.SmoothPlastic
+					Part:SetAttribute("Visibility",1)
+					Part:AddTag("Visibility")
 
 					local Weld = Instance.new("Weld", Part)
 					Weld.Part0 = BasePart
@@ -11886,8 +12073,15 @@ function RoClothes(Player)
 
 					Part.Parent = Character
 
+					Part:AddTag("RoClothes")
 					PlayerData[Data].ConvertedPart[New] = {Part = Part, Weld = Weld, Base = BasePart}
 				end
+			end
+		elseif Character:FindFirstChild("UpperTorso") and Character:FindFirstChild("Torso") then
+			for i, v in pairs(PlayerData[Data].ConvertedPart) do
+				v.Part.Transparency = 0
+				v.Part:SetAttribute("Visibility",1)
+				v.Part:AddTag("Visibility")
 			end
 		end
 	end
@@ -11905,6 +12099,7 @@ function RoClothes(Player)
 				return
 			end
 			DataDetail["Cooldown"] = true
+			DataDetail["Character"] = Character
 
 			local Human = Character:FindFirstChildOfClass("Humanoid")
 			local Head = Character:WaitForChild("Head")
@@ -11929,18 +12124,6 @@ function RoClothes(Player)
 
 				Character = Method2CharacterFolder:FindFirstChild(Data)
 
-				if OldCharacter then
-					for _, v in pairs(OldCharacter:GetChildren()) do
-						if v:IsA("BasePart") then
-							if not v:HasTag("Visibility") then
-								v:SetAttribute("Visibility",v.Transparency)
-								v:AddTag("Visibility")
-							end
-							--v.Transparency = 1
-						end
-					end
-				end
-
 				if not Character then
 					Character = Instance.new("Model", Method2CharacterFolder)
 					Character.Name = Data
@@ -11955,7 +12138,7 @@ function RoClothes(Player)
 					for _, v in pairs(CharacterValue.Value:GetChildren()) do
 						if v:IsA("BasePart") and table.find(Method2BodyPart, v.Name) then
 							if v.Name ~= "Head" then
-								DataDetail.CurrentPartList.ParentTransparency[v] = {v = v.Transparency, T = 1}
+								DataDetail.CurrentPartList.ParentTransparency[v] = {D = v.Transparency,T = 1}
 							end
 
 							local Part = Instance.new("Part", Character)
@@ -11966,6 +12149,7 @@ function RoClothes(Player)
 							Part.CanQuery = false
 							Part.CanTouch = false
 							Part.Massless = true
+							Part.CustomPhysicalProperties = PhysicalProperties.new(0.0001,0,0,0,0)
 							Part.Color = v.Color
 
 							local Weld = Instance.new("Weld", Part)
@@ -12339,24 +12523,26 @@ function RoClothes(Player)
 
 			for _, SelectClothes in pairs(DataDetail.CurrentClothes) do
 				if SelectClothes ~= "nil" then
-					for i, v in pairs(Clothes[SelectClothes]["Weld"]) do
+					if Clothes[SelectClothes]["Weld"] then
+						for i, v in pairs(Clothes[SelectClothes]["Weld"]) do
 
-						local ClothesPart = Function.Weld(PartListData[v], Character, Extra, Data)
-						DataDetail.CurrentPartList["Clothes"][v] = ClothesPart
-						if DataDetail.ClothesRecolor[SelectClothes] and PartListData[v].Recolor then
-							if DataDetail.ClothesRecolor[SelectClothes].Primary ~= "nil" then
-								if PartListData[v].Recolor == "Primary" then
-									ClothesPart.Color = DataDetail.ClothesRecolor[SelectClothes].Primary
+							local ClothesPart = Function.Weld(PartListData[v], Character, Extra, Data)
+							DataDetail.CurrentPartList["Clothes"][v] = ClothesPart
+							if DataDetail.ClothesRecolor[SelectClothes] and PartListData[v].Recolor then
+								if DataDetail.ClothesRecolor[SelectClothes].Primary ~= "nil" then
+									if PartListData[v].Recolor == "Primary" then
+										ClothesPart.Color = DataDetail.ClothesRecolor[SelectClothes].Primary
+									end
 								end
-							end
-							if DataDetail.ClothesRecolor[SelectClothes].Secondary ~= "nil" then
-								if PartListData[v].Recolor == "Secondary" then
-									ClothesPart.Color = DataDetail.ClothesRecolor[SelectClothes].Secondary
+								if DataDetail.ClothesRecolor[SelectClothes].Secondary ~= "nil" then
+									if PartListData[v].Recolor == "Secondary" then
+										ClothesPart.Color = DataDetail.ClothesRecolor[SelectClothes].Secondary
+									end
 								end
-							end
-							if DataDetail.ClothesRecolor[SelectClothes].Tertiary ~= "nil" then
-								if PartListData[v].Recolor == "Tertiary" then
-									ClothesPart.Color = DataDetail.ClothesRecolor[SelectClothes].Tertiary
+								if DataDetail.ClothesRecolor[SelectClothes].Tertiary ~= "nil" then
+									if PartListData[v].Recolor == "Tertiary" then
+										ClothesPart.Color = DataDetail.ClothesRecolor[SelectClothes].Tertiary
+									end
 								end
 							end
 						end
@@ -12383,10 +12569,6 @@ function RoClothes(Player)
 			end
 
 			if FaceDecal and DataDetail.Face == false then
-				if not FaceDecal:HasTag("Visibility") then
-					FaceDecal:SetAttribute("Visibility",FaceDecal.Transparency)
-					FaceDecal:AddTag("Visibility")
-				end
 				FaceDecal.Transparency = 1
 				DataDetail.CurrentPartList.ParentTransparency[FaceDecal] = {D = 0, T = 1}
 			end
@@ -12425,6 +12607,7 @@ function RoClothes(Player)
 				v:Destroy()
 			end
 		end
+		Debug = false
 
 		for _, v in pairs(MeshEditConnect) do
 			v:Disconnect()
@@ -12439,24 +12622,43 @@ function RoClothes(Player)
 			setmetatable(MeshDetail, MetaClothes)
 
 			if MeshDetail then
+				if MeshDetail["Scale"] == "CockScale" then
+					local Button = Function.ButtonCreate("CockScale", GUIObject.PropertyListFrame, true, {Color = Color3.fromRGB(93, 93, 93), Text = "CockScale"})
+					local Textbox = Button:FindFirstChildOfClass("TextBox")
+					Textbox.Text = PlayerData[SelectPlayer].CockScale
+
+					local TextboxConnect = Textbox.FocusLost:Connect(function()
+						PlayerData[SelectPlayer].CockScale = tonumber(Textbox.Text)
+					end)
+
+					table.insert(MeshEditConnect, TextboxConnect)
+					table.insert(AllConnect, TextboxConnect)
+				end
 				for _, PropertyName in pairs(EditableProperty) do
 					local Value = MeshDetail[PropertyName]
+					if Value == nil then Value = "" end
 					local Button = Function.ButtonCreate(PropertyName, GUIObject.PropertyListFrame, true, {Color = Color3.fromRGB(93, 93, 93), Text = PropertyName})
 					local Textbox = Button:FindFirstChildOfClass("TextBox")
 
 					if PropertyName == "Color" then
 						local Split = string.split(tostring(Value.Color), ",")
 
-						Textbox.Text = math.round(Split[1]*255)..","..math.round(Split[2]*255)..","..math.round(Split[3]*255)
-						Textbox.TextColor3 = Value.Color
-						Textbox.TextStrokeTransparency = 0
-						Textbox.TextStrokeColor3 = Color3.new(1,1,1)
+						if tonumber(Split[1]) and tonumber(Split[2]) and tonumber(Split[3]) then
+							Textbox.Text = math.round(Split[1]*255)..","..math.round(Split[2]*255)..","..math.round(Split[3]*255)
+							Textbox.TextColor3 = Value.Color
+							Textbox.TextStrokeTransparency = 0
+							Textbox.TextStrokeColor3 = Color3.new(1,1,1)
+						else
+							Textbox.Text = ""
+						end
 					else
 						Textbox.Text = tostring(Value)
 					end
 
 					local TextboxConnect = Textbox.FocusLost:Connect(function()
 						if PropertyName == "Size" then
+							PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = Function.StringTo(Textbox.Text, "Vector3")
+						elseif PropertyName == "Offset" then
 							PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = Function.StringTo(Textbox.Text, "Vector3")
 						elseif PropertyName == "TextureId" then
 							PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = Textbox.Text
@@ -12474,6 +12676,8 @@ function RoClothes(Player)
 					table.insert(AllConnect, TextboxConnect)
 				end
 			end
+		elseif Name == "DEBUG" then
+			Debug = true
 		end
 	end
 
@@ -12756,6 +12960,8 @@ function RoClothes(Player)
 		Function.CharacterConnection(v)
 	end)
 
+	local tap = false
+	local cd = false
 	local UISBeganConnect = UIS.InputBegan:Connect(function(Keycode, Process)
 		if Process then return end
 
@@ -12768,11 +12974,82 @@ function RoClothes(Player)
 				GUIObject.Screen.Enabled = not GUIObject.Screen.Enabled
 			end
 		end
+		if hpKeybindDetect == true then
+			hpKEYBIND = Keycode.KeyCode
+			--GUIObject.KeybindButton.Text = string.sub(tostring(hpKEYBIND), 14, #tostring(hpKEYBIND))
+			hpKeybindDetect = false
+		else
+			if Keycode.KeyCode == hpKEYBIND and cd == false then
+				local LP = game:GetService("Players").LocalPlayer
+				local data = PlayerData[LP.Name]
+				if LP.Character and LP.Character.Humanoid and data 
+					and data["HardcoreHP"] == true and (data["TopHP"] ~= "" or data["BottomHP"] ~= "") then
+					if data["Healing"] == false then
+						data["Healing"] = true
+						cd = true
+						tap = true
+						task.wait(.25)
+						cd = false
+						tap = false
+						if data["Healing"] == true and (data["SavedTopHP"] < data["TopHP"] or data["SavedBottomHP"] < data["BottomHP"]) then
+							local healTime = 0
+							local timeAccumulated = 0
+							local totalTime = 0
+							if data["TopHP"] ~= "" then
+								healTime += (data["TopHP"]/math.max(data["SavedTopHP"],1))*0.03
+							end
+							if data["BottomHP"] ~= "" then
+								healTime += (data["BottomHP"]/math.max(data["SavedBottomHP"],1))*0.03
+							end
+							repeat
+								if LP.Character.Humanoid.Health < data["SavedPreviousHP"] then
+									data["Healing"] = false
+								end
+								local focus
+								local timeRequired
+								if data["BottomHP"] ~= "" and (data["SavedBottomHP"] <= 0 or data["SavedTopHP"]/data["TopHP"] >= data["SavedBottomHP"]/data["BottomHP"]) then
+									focus = "BottomHP"
+									timeRequired = (data["BottomHP"]/math.max(data["SavedBottomHP"],1))*0.03
+								elseif data["TopHP"] ~= "" and (data["SavedTopHP"] <= 0 or data["SavedTopHP"]/data["TopHP"] < data["SavedBottomHP"]/data["BottomHP"]) then
+									focus = "TopHP"
+									timeRequired = (data["TopHP"]/math.max(data["SavedTopHP"],1))*0.03
+								end
+								local t = task.wait()
+								timeAccumulated += t
+								totalTime += t
+								-- TODO: u gotta add a progress bar & thingy to show hp
+								if timeAccumulated >= timeRequired then
+									timeAccumulated = 0
+									if focus == "TopHP" then
+										data["SavedTopHP"]=data["TopHP"]
+									else
+										data["SavedBottomHP"]=data["BottomHP"]
+									end
+								end
+							until data["Healing"] == false
+						end
+					end
+				end
+			end
+		end
+	end)
+
+	local UISEndedConnect = UIS.InputEnded:Connect(function(Keycode,Process)
+		if Process then return end
+
+		if Keycode.KeyCode == hpKEYBIND then
+			local LP = game:GetService("Players").LocalPlayer
+			local data = PlayerData[LP.Name]
+			if LP.Character and LP.Character.Humanoid and data and data["HardcoreHP"] == true then
+				if data["Healing"] == true then
+					data["Healing"] = false
+				end
+			end
+		end
 	end)
 
 	local collisionList = {}
 	local collisionChecks = {}
-	--[[
 	for i, v in pairs(workspace:GetDescendants()) do
 		if v:IsA("BasePart") and v.CanCollide == false then
 			table.insert(collisionList,v)
@@ -12783,9 +13060,11 @@ function RoClothes(Player)
 					table.remove(collisionList,table.find(collisionList,v))
 				end
 			end)
+			collisionChecks[v] = collisionChange
 			table.insert(AllConnect, collisionChange)
 		end
 	end
+	--[[
 	local collisionAdded = workspace.DescendantAdded:Connect(function(v)
 		if v:IsA("BasePart") and v.CanCollide == false then
 			table.insert(collisionList,v)
@@ -12823,45 +13102,67 @@ function RoClothes(Player)
 				local rootpart = char:WaitForChild("HumanoidRootPart")
 				local ray = Ray.new(hed.Position, ((hed.CFrame + hed.CFrame.LookVector * 2) - hed.Position).Position.Unit)
 
-				local ignoreList = {}
-				for i, v in pairs(collisionList) do
-					table.insert(ignoreList,v)
+				local currentCamera = workspace.CurrentCamera
+				local function Round(num: number, places: number): number
+					local decimalPivot = 10^places
+					return math.floor(num * decimalPivot + 0.5) / decimalPivot
 				end
-				for i, v in pairs(Player.Character:GetDescendants()) do
-					if v:IsA("BasePart") then
+				if currentCamera then
+					local distance = (currentCamera.Focus.p - currentCamera.CoordinateFrame.p).magnitude
+					local d = (distance<2) and (1.0-(distance-0.5)/1.5) or 0
+					if d < 0.5 then
+						d = 0
+					end
+
+					local ignoreList = {}
+					for i, v in pairs(collisionList) do
 						table.insert(ignoreList,v)
 					end
-				end
-				for i, v in pairs(Method2CharacterFolder:GetDescendants()) do
-					if v:IsA("BasePart") then
-						table.insert(ignoreList,v)
-					end
-				end
-
-				local hit, pos = game.Workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
-
-				if hit and hit.CanCollide == false and not collisionChecks[hit] then
-					table.insert(collisionList,hit)
-					local collisionChange = hit:GetPropertyChangedSignal("CanCollide"):Connect(function()
-						if hit.CanCollide == false and not table.find(collisionList,hit) then
-							table.insert(collisionList,hit)
-						elseif hit.CanCollide == true then
-							table.remove(collisionList,table.find(collisionList,hit))
+					for i, v in pairs(Player.Character:GetDescendants()) do
+						if v:IsA("BasePart") then
+							table.insert(ignoreList,v)
 						end
-					end)
-					collisionChecks[hit] = collisionChange
-					table.insert(AllConnect, collisionChange)
-					PlayerData[lP.Name].updateCooldown = false
-				end
+					end
+					for i, v in pairs(Method2CharacterFolder:GetDescendants()) do
+						if v:IsA("BasePart") then
+							table.insert(ignoreList,v)
+						end
+					end
 
-				if PlayerData[lP.Name].updateCooldown == true then
-					-- (workspace.CurrentCamera.CFrame.p - hed.Position).Magnitude <= 1.65
-					if hit and (hed.LocalTransparencyModifier >= .6 or (workspace.CurrentCamera.CFrame.p - hed.Position).Magnitude <= 1) then
-						TS:Create(char.Humanoid,ti2,{CameraOffset = ((rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p))+Vector3.new(0, 0, -(hed.Position - pos).magnitude)}):Play()
-					elseif hed.LocalTransparencyModifier >= .6 or (workspace.CurrentCamera.CFrame.p - hed.Position).Magnitude <= 1 then
-						TS:Create(char.Humanoid,ti2,{CameraOffset = ((rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p))+Vector3.new(0, 0, -1)}):Play()
-					else
-						TS:Create(char.Humanoid,ti,{CameraOffset = (rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p)}):Play()
+					local hit, pos = game.Workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
+
+					if hit and hit.CanCollide == false and not collisionChecks[hit] then
+						table.insert(collisionList,hit)
+						local collisionChange = hit:GetPropertyChangedSignal("CanCollide"):Connect(function()
+							if hit.CanCollide == false and not table.find(collisionList,hit) then
+								table.insert(collisionList,hit)
+							elseif hit.CanCollide == true then
+								table.remove(collisionList,table.find(collisionList,hit))
+							end
+						end)
+						collisionChecks[hit] = collisionChange
+						table.insert(AllConnect, collisionChange)
+						PlayerData[lP.Name].updateCooldown = false
+					end
+
+					if PlayerData[lP.Name].updateCooldown == true then
+						-- (workspace.CurrentCamera.CFrame.p - hed.Position).Magnitude <= 1.65
+						-- (hed.LocalTransparencyModifier >= .6 or (workspace.CurrentCamera.CFrame.p - hed.Position).Magnitude <= 1)
+						if hit and d >= .8 then
+							if PlayerData[lP.Name].FPsnap == false then
+								TS:Create(char.Humanoid,ti2,{CameraOffset = ((rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p))+Vector3.new(0, 0, -(hed.Position - pos).magnitude)}):Play()
+							else
+								char.Humanoid.CameraOffset = ((rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p))+Vector3.new(0, 0, -(hed.Position - pos).magnitude)
+							end
+						elseif d >= .8 then
+							if PlayerData[lP.Name].FPsnap == false then
+								TS:Create(char.Humanoid,ti2,{CameraOffset = ((rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p))+Vector3.new(0, 0, -1)}):Play()
+							else
+								char.Humanoid.CameraOffset = ((rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p))+Vector3.new(0, 0, -1)
+							end
+						else
+							TS:Create(char.Humanoid,ti,{CameraOffset = (rootpart.CFrame+Vector3.new(0,1.5,0)):pointToObjectSpace(hed.CFrame.p)}):Play()
+						end
 					end
 				end
 			end
@@ -12899,12 +13200,26 @@ function RoClothes(Player)
 					local SIZE = Property.Size
 					local Weld = Property.Weld
 
-					local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Base.Size, BodyPartSize[Base.Name])
+					if CFRAME and CFRAME1 and SIZE and Weld then
+						local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Base.Size, BodyPartSize[Base.Name])
+
+						local CCFRAME = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
+						local CCFRAME1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
+
+						if PlayerData[PlayerName].MeshSizeLock == false and not PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part] then
+							Part.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
+							Weld.C0 = CCFRAME
+							Weld.C1 = CCFRAME1
+						elseif PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part] then
+							PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF = CCFRAME
+							PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF1 = CCFRAME1
+						end
+					end
 
 					if PlayerData[PlayerName].RealtimeBodyTransparency == true then 
 						local updated = false
 						if Method == 2 or Method == 3 then
-							Base = lP.Character:FindFirstChild(Base.Name)
+							Base = PlayerData[PlayerName].Character:FindFirstChild(Base.Name)
 						end
 						if --Part.Transparency == PlayerData[PlayerName].OldTransparency[Base] and 
 							Base.Transparency ~= PlayerData[PlayerName].OldTransparency[Base] then
@@ -12924,399 +13239,435 @@ function RoClothes(Player)
 							Part:SetAttribute("maxDeterminedRC",true)
 						end
 					end
-					if PlayerData[PlayerName].LocalTransparency[Base.Name] == true then
-						Part.LocalTransparencyModifier = Part.Transparency
-					end
+					if PlayerName == lP.Name then
+						if PlayerData[PlayerName].LocalTransparency[Base.Name] == true then
+							Part.LocalTransparencyModifier = Part.Transparency
+						elseif Method == 2 then
+							if lP.Character and lP.Character.HumanoidRootPart then
+								local chr = lP.Character
+								local human = chr.Humanoid
+								local rootPart = chr.HumanoidRootPart
 
-					local CCFRAME = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
-					local CCFRAME1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
+								local currentCamera = workspace.CurrentCamera
+								local function Round(num: number, places: number): number
+									local decimalPivot = 10^places
+									return math.floor(num * decimalPivot + 0.5) / decimalPivot
+								end
+								if currentCamera then
+									local distance = (currentCamera.Focus.p - currentCamera.CoordinateFrame.p).magnitude
+									local transparency = (distance<2) and (1.0-(distance-0.5)/1.5) or 0
+									if transparency < 0.5 then
+										transparency = 0
+									end
 
-					if PlayerData[PlayerName].MeshSizeLock == false and not PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part] then
-						Part.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
-						Weld.C0 = CCFRAME
-						Weld.C1 = CCFRAME1
-					else
-						PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF = CCFRAME
-						PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF1 = CCFRAME1
+									transparency = math.clamp(Round(transparency, 2), 0, 1)
+									if transparency >= 0.85 then
+										transparency = 1
+									end
+									if Part.LocalTransparencyModifier ~= transparency then
+										if math.abs(Part.LocalTransparencyModifier-transparency) > .4 or Part.LocalTransparencyModifier > .95 then
+											Part.LocalTransparencyModifier = transparency
+										else
+											Part.LocalTransparencyModifier = Part.Transparency+math.lerp(Part.LocalTransparencyModifier,transparency,.2)
+										end
+									end
+								end
+							--[[
+							local centerCam = rootPart.Position+Vector3.new(0,1.5,0)
+							local camToHead = (workspace.CurrentCamera.CFrame.Position-(centerCam+(rootPart.CFrame:VectorToWorldSpace(human.CameraOffset))))
+							
+							local transparent
+							if 1.5-camToHead.Magnitude > 0.95 then
+								transparent = 1
+							else
+								transparent = 1.5-camToHead.Magnitude
+							end
+							Part.LocalTransparencyModifier = Base.Transparency+math.lerp(Part.LocalTransparencyModifier,transparent,.5)
+							]]
+							end
+						end
 					end
 				end
+			end
 
-				if game:GetService("Players"):FindFirstChild(PlayerName) then
-					local p = game:GetService("Players"):FindFirstChild(PlayerName)
-					if p.Character then
-						local c = p.Character
-						local h = c:FindFirstChildOfClass("Humanoid")
-						local PData = PlayerData[PlayerName]
-						if h and PData.Cooldown == false then
-							local function transparent(o,v)
-								o:SetAttribute("maxTransparencyRC",v)
-								o.Transparency = v
-							end
-							-- top --
-							if PData.TopHP ~= "" and 
-								(PData.HardcoreHP == false and h.MaxHealth-h.Health >= PData.TopHP or 
-									PData.HardcoreHP == true and PData.SavedTopHP <= 0
-								) then
-								if PData.TopRipped == false then
-									PData.TopRipped = true
-
-									if UIS.KeyboardEnabled then
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxasset://RClothesContent/Sound/Tear/tear".. math.random(1,3) ..".mp3"
-										audio.Volume = 0.75*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									else
-										local sounds = {9113827650,9113827551,9113833815}
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
-										audio.Volume = 0.75*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									end
-
-									if PData.TearParticles == true then
-										local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
-										particle.Enabled = false
-										particle.Texture = "rbxassetid://386425736"
-										particle.Size = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,.7,.375),
-												NumberSequenceKeypoint.new(1,.4)
-											}
-										)
-										particle.Transparency = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,1),
-												NumberSequenceKeypoint.new(0.214,0),
-												NumberSequenceKeypoint.new(0.545,0),
-												NumberSequenceKeypoint.new(1,1)
-											}
-										)
-										particle.Lifetime = NumberRange.new(0.5,1)
-										particle.Rotation = NumberRange.new(-360,360)
-										particle.RotSpeed = NumberRange.new(-360,360)
-										particle.Speed = NumberRange.new(15,20)
-										particle.SpreadAngle = Vector2.new(75,75)
-										particle.Acceleration = Vector3.new(0,-15,0)
-										particle.Drag = 5
-										particle:Emit(50)
-										game:GetService("Debris"):AddItem(particle,3)
-									end
-
-									if PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Clothes"]["Torso Shirt"] then
-										transparent(PData.CurrentPartList["Clothes"]["Torso Shirt"],1)
-									end
-									if PData.HPClothes.Shirt ~= "" and not tonumber(PData.HPClothes.Shirt) then
-										if not PData.HPClothes.Pants then
-											Function.ShirtTexture(PData.CurrentPartList["Organ"]["Torso"],c,{Shirt = PData.HPClothes.Shirt},PlayerName)
-										end
-										Function.ShirtTexture(PData.CurrentPartList["Organ"]["Left Arm"],c,{Shirt = PData.HPClothes.Shirt},PlayerName)
-										Function.ShirtTexture(PData.CurrentPartList["Organ"]["Right Arm"],c,{Shirt = PData.HPClothes.Shirt},PlayerName)
-									end
-
-									if PData.CurrentPartList["Organ"]["Left Breast"] then
-										transparent(PData.CurrentPartList["Organ"]["Left Breast"],0)
-										transparent(PData.CurrentPartList["Organ"]["Left Nipple"],0)
-									end
-									if PData.CurrentPartList["Organ"]["Right Breast"] then
-										transparent(PData.CurrentPartList["Organ"]["Right Breast"],0)
-										transparent(PData.CurrentPartList["Organ"]["Right Nipple"],0)
-									end
-
-									for i, v in pairs(PData.CurrentPartList.AreolaDecal) do
-										if v.Name == "Left Breast" or v.Name == "Right Breast" then
-											i.Transparency = 0
-										else
-											i.Transparency = 1
-										end
-									end
-									if PData.CurrentPartList["Clothes"]["Breasts Shirt"] then
-										transparent(PData.CurrentPartList["Clothes"]["Left Breast 2"],1)
-										transparent(PData.CurrentPartList["Clothes"]["Right Breast 2"],1)
-										transparent(PData.CurrentPartList["Clothes"]["Breasts Shirt"],1)
-										transparent(PData.CurrentPartList["Clothes"]["Breasts Pants"],1)
-									end
-									if PData.CurrentPartList["Clothes"]["Right Butt Shirt"] then
-										transparent(PData.CurrentPartList["Clothes"]["Left Butt Shirt"],1)
-										transparent(PData.CurrentPartList["Clothes"]["Right Butt Shirt"],1)
-									end
-								end
-							elseif PData.TopHP ~= "" and 
-								(PData.HardcoreHP == false and h.MaxHealth-h.Health < PData.TopHP or
-									PData.HardcoreHP == true and PData.SavedTopHP > 0
-								) then
-								if PData.TopRipped == true then
-									PData.TopRipped = false
-
-									if UIS.KeyboardEnabled then
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxasset://RClothesContent/Sound/Heal/heal".. math.random(1,4) ..".mp3"
-										audio.Volume = 2.5*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									else
-										local sounds = {9113824422,9119138453,9113384209,9113824860}
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
-										audio.Volume = 2.5*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									end
-
-									if PData.HealParticles == true then
-										local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
-										particle.Enabled = false
-										particle.Texture = "rbxassetid://16291625893"
-										particle.LightEmission = 1
-										particle.ZOffset = 1
-										particle.Size = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,0),
-												NumberSequenceKeypoint.new(1,.5)
-											}
-										)
-										particle.Transparency = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,1),
-												NumberSequenceKeypoint.new(0.5,0),
-												NumberSequenceKeypoint.new(1,1)
-											}
-										)
-										particle.Lifetime = NumberRange.new(0.5,1)
-										particle.Rotation = NumberRange.new(-10,10)
-										particle.RotSpeed = NumberRange.new(-10,10)
-										particle.Speed = NumberRange.new(-1,2)
-										particle.Drag = 2
-										particle:Emit(math.random(4,8))
-										game:GetService("Debris"):AddItem(particle,3)
-									end
-
-									if PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Clothes"]["Torso Shirt"] then
-										transparent(PData.CurrentPartList["Clothes"]["Torso Shirt"],0)
-									end
-									if (not c:FindFirstChildOfClass("Pants") or not PData.HPClothes.Pants) and PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if c:FindFirstChildOfClass("Shirt") then
-										Function.ShirtTexture(PData.CurrentPartList["Organ"]["Left Arm"],c,{Shirt = c:FindFirstChildOfClass("Shirt")},PlayerName)
-										Function.ShirtTexture(PData.CurrentPartList["Organ"]["Right Arm"],c,{Shirt = c:FindFirstChildOfClass("Shirt")},PlayerName)
-									end
-
-									if PData.CurrentPartList["Organ"]["Left Breast"] then
-										transparent(PData.CurrentPartList["Organ"]["Left Breast"],1)
-										transparent(PData.CurrentPartList["Organ"]["Left Nipple"],1)
-									end
-									if PData.CurrentPartList["Organ"]["Right Breast"] then
-										transparent(PData.CurrentPartList["Organ"]["Right Breast"],1)
-										transparent(PData.CurrentPartList["Organ"]["Right Nipple"],1)
-									end
-
-									for i, v in pairs(PData.CurrentPartList.AreolaDecal) do
-										if v.Name == "Left Breast" or v.Name == "Right Breast" then
-											i.Transparency = 1
-										else
-											i.Transparency = 0
-										end
-									end
-									if PData.CurrentPartList["Clothes"]["Breasts Shirt"] then
-										transparent(PData.CurrentPartList["Clothes"]["Left Breast 2"],0)
-										transparent(PData.CurrentPartList["Clothes"]["Right Breast 2"],0)
-										transparent(PData.CurrentPartList["Clothes"]["Breasts Shirt"],0)
-										transparent(PData.CurrentPartList["Clothes"]["Breasts Pants"],0)
-									end
-									if PData.CurrentPartList["Clothes"]["Right Butt Shirt"] then
-										transparent(PData.CurrentPartList["Clothes"]["Left Butt Shirt"],PData.CurrentPartList["Clothes"]["Left Butt Shirt"]:GetAttribute("Alpha") or 0)
-										transparent(PData.CurrentPartList["Clothes"]["Right Butt Shirt"],PData.CurrentPartList["Clothes"]["Right Butt Shirt"]:GetAttribute("Alpha") or 0)
-									end
-								end
-							end
-							-- bottom --
-							if PData.BottomHP ~= "" and 
-								(PData.HardcoreHP == false and h.MaxHealth-h.Health >= PData.BottomHP or
-									PData.HardcoreHP == true and PData.SavedBottomHP <= 0
-								) then
-								if PData.BottomRipped == false then
-									PData.BottomRipped = true
-
-									if UIS.KeyboardEnabled then
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxasset://RClothesContent/Sound/Tear/tear".. math.random(1,3) ..".mp3"
-										audio.Volume = 0.75*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									else
-										local sounds = {9113827650,9113827551,9113833815}
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
-										audio.Volume = 0.75*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									end
-
-									if PData.TearParticles == true then
-										local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
-										particle.Enabled = false
-										particle.Texture = "rbxassetid://386425736"
-										particle.Size = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,.7,.375),
-												NumberSequenceKeypoint.new(1,.4)
-											}
-										)
-										particle.Transparency = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,1),
-												NumberSequenceKeypoint.new(0.214,0),
-												NumberSequenceKeypoint.new(0.545,0),
-												NumberSequenceKeypoint.new(1,1)
-											}
-										)
-										particle.Lifetime = NumberRange.new(0.5,1)
-										particle.Rotation = NumberRange.new(-360,360)
-										particle.RotSpeed = NumberRange.new(-360,360)
-										particle.Speed = NumberRange.new(15,20)
-										particle.SpreadAngle = Vector2.new(75,75)
-										particle.Acceleration = Vector3.new(0,-15,0)
-										particle.Drag = 5
-										particle:Emit(50)
-										game:GetService("Debris"):AddItem(particle,3)
-									end
-
-									if PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.HPClothes.Pants ~= "" and not tonumber(PData.HPClothes.Pants) then
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Torso"],c,{Pants = PData.HPClothes.Pants},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Leg"],c,{Pants = PData.HPClothes.Pants},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Leg"],c,{Pants = PData.HPClothes.Pants},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Butt"],c,{Pants = PData.HPClothes.Pants},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Butt"],c,{Pants = PData.HPClothes.Pants},PlayerName)
-									end
-								end
-							elseif PData.BottomHP ~= "" and 
-								(PData.HardcoreHP == false and h.MaxHealth-h.Health < PData.BottomHP or
-									PData.HardcoreHP == true and PData.SavedBottomHP > 0
-								) then
-								if PData.BottomRipped == true then
-									PData.BottomRipped = false
-
-									if UIS.KeyboardEnabled then
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxasset://RClothesContent/Sound/Heal/heal".. math.random(1,4) ..".mp3"
-										audio.Volume = 2.5*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									else
-										local sounds = {9113824422,9119138453,9113384209,9113824860}
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
-										audio.Volume = 2.5*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									end
-
-									if PData.HealParticles == true then
-										local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
-										particle.Enabled = false
-										particle.Texture = "rbxassetid://16291625893"
-										particle.LightEmission = 1
-										particle.ZOffset = 1
-										particle.Size = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,0),
-												NumberSequenceKeypoint.new(1,.5)
-											}
-										)
-										particle.Transparency = NumberSequence.new(
-											{
-												NumberSequenceKeypoint.new(0,1),
-												NumberSequenceKeypoint.new(0.5,0),
-												NumberSequenceKeypoint.new(1,1)
-											}
-										)
-										particle.Lifetime = NumberRange.new(0.5,1)
-										particle.Rotation = NumberRange.new(-10,10)
-										particle.RotSpeed = NumberRange.new(-10,10)
-										particle.Speed = NumberRange.new(-1,2)
-										particle.Drag = 2
-										particle:Emit(math.random(4,8))
-										game:GetService("Debris"):AddItem(particle,3)
-									end
-
-									if PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance") then
-										PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
-									end
-									if c:FindFirstChildOfClass("Pants") then
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Torso"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Leg"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Leg"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Butt"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
-										Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Butt"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
-									end
-								end
-							end
-
-							if (PData.SavedPreviousHP-h.Health) >= 0 and PData.HardcoreHP == true then
-								PData.SavedTopHP -= (PData.SavedPreviousHP-h.Health)
-								PData.SavedBottomHP -= (PData.SavedPreviousHP-h.Health)
-							end
-							if PData.DamageSFX ~= "" and h.Health < PData.SavedPreviousHP then
-								if (PData.SavedPreviousHP-h.Health) >= PData.DamageSFX then
-									if UIS.KeyboardEnabled then
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxasset://RClothesContent/Sound/Moan/".. math.random(1,14) ..".ogg"
-										audio.Volume = 1.5*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									else
-										local sounds = {4792913155,4792899013,4792904673,4792901644,4792915329,4792884617}
-										local audio = Instance.new("Sound",c.PrimaryPart)
-										audio.SoundId = "rbxassetid://".. sounds[math.random(1,#sounds)]
-										audio.Volume = 1.5*PData.Volume
-										audio:Play()
-										game:GetService("Debris"):AddItem(audio,3)
-									end
-								end
-							end
-							PData.SavedPreviousHP = h.Health
+			if game:GetService("Players"):FindFirstChild(PlayerName) then
+				local p = game:GetService("Players"):FindFirstChild(PlayerName)
+				if p.Character then
+					local c = p.Character
+					local h = c:FindFirstChildOfClass("Humanoid")
+					if Method == 2 and Method2CharacterFolder:FindFirstChild(PlayerName) then
+						c = Method2CharacterFolder[PlayerName]
+					end
+					local PData = PlayerData[PlayerName]
+					if h and PData.Cooldown == false then
+						local function transparent(o,v)
+							o:SetAttribute("maxTransparencyRC",v)
+							o.Transparency = v
 						end
+						-- top --
+						if PData.TopHP ~= "" and 
+							(PData.HardcoreHP == false and h.MaxHealth-h.Health >= PData.TopHP or 
+								PData.HardcoreHP == true and PData.SavedTopHP <= 0
+							) then
+							if PData.TopRipped == false then
+								PData.TopRipped = true
+
+								if UIS.KeyboardEnabled then
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxasset://RClothesContent/Sound/Tear/tear".. math.random(1,3) ..".mp3"
+									audio.Volume = 0.75*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								else
+									local sounds = {9113827650,9113827551,9113833815}
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
+									audio.Volume = 0.75*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								end
+
+								if PData.TearParticles == true then
+									local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
+									particle.Enabled = false
+									particle.Texture = "rbxassetid://386425736"
+									particle.Size = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,.7,.375),
+											NumberSequenceKeypoint.new(1,.4)
+										}
+									)
+									particle.Transparency = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,1),
+											NumberSequenceKeypoint.new(0.214,0),
+											NumberSequenceKeypoint.new(0.545,0),
+											NumberSequenceKeypoint.new(1,1)
+										}
+									)
+									particle.Lifetime = NumberRange.new(0.5,1)
+									particle.Rotation = NumberRange.new(-360,360)
+									particle.RotSpeed = NumberRange.new(-360,360)
+									particle.Speed = NumberRange.new(15,20)
+									particle.SpreadAngle = Vector2.new(75,75)
+									particle.Acceleration = Vector3.new(0,-15,0)
+									particle.Drag = 5
+									particle:Emit(50)
+									game:GetService("Debris"):AddItem(particle,3)
+								end
+
+								if PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Clothes"]["Torso Shirt"] then
+									transparent(PData.CurrentPartList["Clothes"]["Torso Shirt"],1)
+								end
+								if PData.HPClothes.Shirt ~= "" and not tonumber(PData.HPClothes.Shirt) then
+									if not PData.HPClothes.Pants then
+										Function.ShirtTexture(PData.CurrentPartList["Organ"]["Torso"],c,{Shirt = PData.HPClothes.Shirt},PlayerName)
+									end
+									Function.ShirtTexture(PData.CurrentPartList["Organ"]["Left Arm"],c,{Shirt = PData.HPClothes.Shirt},PlayerName)
+									Function.ShirtTexture(PData.CurrentPartList["Organ"]["Right Arm"],c,{Shirt = PData.HPClothes.Shirt},PlayerName)
+								end
+
+								if PData.CurrentPartList["Organ"]["Left Breast"] then
+									transparent(PData.CurrentPartList["Organ"]["Left Breast"],0)
+									transparent(PData.CurrentPartList["Organ"]["Left Nipple"],0)
+								end
+								if PData.CurrentPartList["Organ"]["Right Breast"] then
+									transparent(PData.CurrentPartList["Organ"]["Right Breast"],0)
+									transparent(PData.CurrentPartList["Organ"]["Right Nipple"],0)
+								end
+
+								for i, v in pairs(PData.CurrentPartList.AreolaDecal) do
+									if v.Name == "Left Breast" or v.Name == "Right Breast" then
+										i.Transparency = 0
+									else
+										i.Transparency = 1
+									end
+								end
+								if PData.CurrentPartList["Clothes"]["Breasts Shirt"] then
+									transparent(PData.CurrentPartList["Clothes"]["Left Breast 2"],1)
+									transparent(PData.CurrentPartList["Clothes"]["Right Breast 2"],1)
+									transparent(PData.CurrentPartList["Clothes"]["Breasts Shirt"],1)
+									transparent(PData.CurrentPartList["Clothes"]["Breasts Pants"],1)
+								end
+								if PData.CurrentPartList["Clothes"]["Right Butt Shirt"] then
+									transparent(PData.CurrentPartList["Clothes"]["Left Butt Shirt"],1)
+									transparent(PData.CurrentPartList["Clothes"]["Right Butt Shirt"],1)
+								end
+							end
+						elseif PData.TopHP ~= "" and 
+							(PData.HardcoreHP == false and h.MaxHealth-h.Health < PData.TopHP or
+								PData.HardcoreHP == true and PData.SavedTopHP > 0
+							) then
+							if PData.TopRipped == true then
+								PData.TopRipped = false
+
+								if UIS.KeyboardEnabled then
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxasset://RClothesContent/Sound/Heal/heal".. math.random(1,4) ..".mp3"
+									audio.Volume = 2.5*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								else
+									local sounds = {9113824422,9119138453,9113384209,9113824860}
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
+									audio.Volume = 2.5*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								end
+
+								if PData.HealParticles == true then
+									local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
+									particle.Enabled = false
+									particle.Texture = "rbxassetid://16291625893"
+									particle.LightEmission = 1
+									particle.ZOffset = 1
+									particle.Size = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,0),
+											NumberSequenceKeypoint.new(1,.5)
+										}
+									)
+									particle.Transparency = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,1),
+											NumberSequenceKeypoint.new(0.5,0),
+											NumberSequenceKeypoint.new(1,1)
+										}
+									)
+									particle.Lifetime = NumberRange.new(0.5,1)
+									particle.Rotation = NumberRange.new(-10,10)
+									particle.RotSpeed = NumberRange.new(-10,10)
+									particle.Speed = NumberRange.new(-1,2)
+									particle.Drag = 2
+									particle:Emit(math.random(4,8))
+									game:GetService("Debris"):AddItem(particle,3)
+								end
+
+								if PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Left Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Right Arm"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Clothes"]["Torso Shirt"] then
+									transparent(PData.CurrentPartList["Clothes"]["Torso Shirt"],0)
+								end
+								if (not c:FindFirstChildOfClass("Pants") or not PData.HPClothes.Pants) and PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if c:FindFirstChildOfClass("Shirt") then
+									Function.ShirtTexture(PData.CurrentPartList["Organ"]["Left Arm"],c,{Shirt = c:FindFirstChildOfClass("Shirt")},PlayerName)
+									Function.ShirtTexture(PData.CurrentPartList["Organ"]["Right Arm"],c,{Shirt = c:FindFirstChildOfClass("Shirt")},PlayerName)
+								end
+
+								if PData.CurrentPartList["Organ"]["Left Breast"] then
+									transparent(PData.CurrentPartList["Organ"]["Left Breast"],1)
+									transparent(PData.CurrentPartList["Organ"]["Left Nipple"],1)
+								end
+								if PData.CurrentPartList["Organ"]["Right Breast"] then
+									transparent(PData.CurrentPartList["Organ"]["Right Breast"],1)
+									transparent(PData.CurrentPartList["Organ"]["Right Nipple"],1)
+								end
+
+								for i, v in pairs(PData.CurrentPartList.AreolaDecal) do
+									if v.Name == "Left Breast" or v.Name == "Right Breast" then
+										i.Transparency = 1
+									else
+										i.Transparency = 0
+									end
+								end
+								if PData.CurrentPartList["Clothes"]["Breasts Shirt"] then
+									transparent(PData.CurrentPartList["Clothes"]["Left Breast 2"],0)
+									transparent(PData.CurrentPartList["Clothes"]["Right Breast 2"],0)
+									transparent(PData.CurrentPartList["Clothes"]["Breasts Shirt"],0)
+									transparent(PData.CurrentPartList["Clothes"]["Breasts Pants"],0)
+								end
+								if PData.CurrentPartList["Clothes"]["Right Butt Shirt"] then
+									transparent(PData.CurrentPartList["Clothes"]["Left Butt Shirt"],PData.CurrentPartList["Clothes"]["Left Butt Shirt"]:GetAttribute("Alpha") or 0)
+									transparent(PData.CurrentPartList["Clothes"]["Right Butt Shirt"],PData.CurrentPartList["Clothes"]["Right Butt Shirt"]:GetAttribute("Alpha") or 0)
+								end
+							end
+						end
+						-- bottom --
+						if PData.BottomHP ~= "" and 
+							(PData.HardcoreHP == false and h.MaxHealth-h.Health >= PData.BottomHP or
+								PData.HardcoreHP == true and PData.SavedBottomHP <= 0
+							) then
+							if PData.BottomRipped == false then
+								PData.BottomRipped = true
+
+								if UIS.KeyboardEnabled then
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxasset://RClothesContent/Sound/Tear/tear".. math.random(1,3) ..".mp3"
+									audio.Volume = 0.75*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								else
+									local sounds = {9113827650,9113827551,9113833815}
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
+									audio.Volume = 0.75*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								end
+
+								if PData.TearParticles == true then
+									local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
+									particle.Enabled = false
+									particle.Texture = "rbxassetid://386425736"
+									particle.Size = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,.7,.375),
+											NumberSequenceKeypoint.new(1,.4)
+										}
+									)
+									particle.Transparency = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,1),
+											NumberSequenceKeypoint.new(0.214,0),
+											NumberSequenceKeypoint.new(0.545,0),
+											NumberSequenceKeypoint.new(1,1)
+										}
+									)
+									particle.Lifetime = NumberRange.new(0.5,1)
+									particle.Rotation = NumberRange.new(-360,360)
+									particle.RotSpeed = NumberRange.new(-360,360)
+									particle.Speed = NumberRange.new(15,20)
+									particle.SpreadAngle = Vector2.new(75,75)
+									particle.Acceleration = Vector3.new(0,-15,0)
+									particle.Drag = 5
+									particle:Emit(50)
+									game:GetService("Debris"):AddItem(particle,3)
+								end
+
+								if PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.HPClothes.Pants ~= "" and not tonumber(PData.HPClothes.Pants) then
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Torso"],c,{Pants = PData.HPClothes.Pants},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Leg"],c,{Pants = PData.HPClothes.Pants},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Leg"],c,{Pants = PData.HPClothes.Pants},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Butt"],c,{Pants = PData.HPClothes.Pants},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Butt"],c,{Pants = PData.HPClothes.Pants},PlayerName)
+								end
+							end
+						elseif PData.BottomHP ~= "" and 
+							(PData.HardcoreHP == false and h.MaxHealth-h.Health < PData.BottomHP or
+								PData.HardcoreHP == true and PData.SavedBottomHP > 0
+							) then
+							if PData.BottomRipped == true then
+								PData.BottomRipped = false
+
+								if UIS.KeyboardEnabled then
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxasset://RClothesContent/Sound/Heal/heal".. math.random(1,4) ..".mp3"
+									audio.Volume = 2.5*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								else
+									local sounds = {9113824422,9119138453,9113384209,9113824860}
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxassetid://"..  sounds[math.random(1,#sounds)]
+									audio.Volume = 2.5*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								end
+
+								if PData.HealParticles == true then
+									local particle = Instance.new("ParticleEmitter",c:FindFirstChild("HumanoidRootPart"))
+									particle.Enabled = false
+									particle.Texture = "rbxassetid://16291625893"
+									particle.LightEmission = 1
+									particle.ZOffset = 1
+									particle.Size = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,0),
+											NumberSequenceKeypoint.new(1,.5)
+										}
+									)
+									particle.Transparency = NumberSequence.new(
+										{
+											NumberSequenceKeypoint.new(0,1),
+											NumberSequenceKeypoint.new(0.5,0),
+											NumberSequenceKeypoint.new(1,1)
+										}
+									)
+									particle.Lifetime = NumberRange.new(0.5,1)
+									particle.Rotation = NumberRange.new(-10,10)
+									particle.RotSpeed = NumberRange.new(-10,10)
+									particle.Speed = NumberRange.new(-1,2)
+									particle.Drag = 2
+									particle:Emit(math.random(4,8))
+									game:GetService("Debris"):AddItem(particle,3)
+								end
+
+								if PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Left Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Right Leg"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Left Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Right Butt"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance") then
+									PData.CurrentPartList["Organ"]["Torso"]:FindFirstChildOfClass("SurfaceAppearance"):Destroy()
+								end
+								if c:FindFirstChildOfClass("Pants") then
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Torso"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Leg"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Leg"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Left Butt"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
+									Function.PantsTexture(PData.CurrentPartList["Organ"]["Right Butt"],c,{Pants = c:FindFirstChildOfClass("Pants")},PlayerName)
+								end
+							end
+						end
+
+						if (PData.SavedPreviousHP-h.Health) >= 0 and PData.HardcoreHP == true then
+							PData.SavedTopHP -= (PData.SavedPreviousHP-h.Health)
+							PData.SavedBottomHP -= (PData.SavedPreviousHP-h.Health)
+						end
+						if PData.DamageSFX ~= "" and h.Health < PData.SavedPreviousHP then
+							if (PData.SavedPreviousHP-h.Health) >= PData.DamageSFX then
+								if UIS.KeyboardEnabled then
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxasset://RClothesContent/Sound/Moan/".. math.random(1,14) ..".ogg"
+									audio.Volume = 1.5*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								else
+									local sounds = {4792913155,4792899013,4792904673,4792901644,4792915329,4792884617}
+									local audio = Instance.new("Sound",c.PrimaryPart)
+									audio.SoundId = "rbxassetid://".. sounds[math.random(1,#sounds)]
+									audio.Volume = 1.5*PData.Volume
+									audio:Play()
+									game:GetService("Debris"):AddItem(audio,3)
+								end
+							end
+						end
+						PData.SavedPreviousHP = h.Health
 					end
 				end
 			end
@@ -13362,9 +13713,42 @@ function RoClothes(Player)
 					if PlayerData[PlayerName].RealtimeBodyTransparency == true then
 						Part.Transparency = Base.Transparency
 					end
-					if PlayerData[PlayerName].LocalTransparency[Base.Name] == true 
-						and PlayerData[PlayerName].LocalTransparency["Hat"] == true then
-						Part.LocalTransparencyModifier = Part.Transparency
+					if PlayerName == lP.Name then
+						if PlayerData[PlayerName].LocalTransparency[Base.Name] == true 
+							and PlayerData[PlayerName].LocalTransparency["Hat"] == true then
+							Part.LocalTransparencyModifier = Part.Transparency
+						elseif Method == 2 then
+							if lP.Character and lP.Character.HumanoidRootPart then
+								local chr = lP.Character
+								local human = chr.Humanoid
+								local rootPart = chr.HumanoidRootPart
+
+								local currentCamera = workspace.CurrentCamera
+								local function Round(num: number, places: number): number
+									local decimalPivot = 10^places
+									return math.floor(num * decimalPivot + 0.5) / decimalPivot
+								end
+								if currentCamera then
+									local distance = (currentCamera.Focus.p - currentCamera.CoordinateFrame.p).magnitude
+									local transparency = (distance<2) and (1.0-(distance-0.5)/1.5) or 0
+									if transparency < 0.5 then
+										transparency = 0
+									end
+
+									transparency = math.clamp(Round(transparency, 2), 0, 1)
+									if transparency >= 0.85 then
+										transparency = 1
+									end
+									if Part.LocalTransparencyModifier ~= transparency then
+										if math.abs(Part.LocalTransparencyModifier-transparency) > .4 or Part.LocalTransparencyModifier > .95 then
+											Part.LocalTransparencyModifier = transparency
+										else
+											Part.LocalTransparencyModifier = Part.Transparency+math.lerp(Part.LocalTransparencyModifier,transparency,.2)
+										end
+									end
+								end
+							end
+						end
 					end
 
 					if PlayerData[PlayerName].AccessorySizeLock == false then
@@ -13455,6 +13839,7 @@ function RoClothes(Player)
 					local T = Property.T.Transparency
 					local D = Property.Define
 
+					Part.LocalTransparencyModifier = math.clamp(Property.T.LocalTransparencyModifier,D,math.huge)
 					Part.Transparency = math.clamp(T,D,math.huge)
 				end
 			end
@@ -13471,11 +13856,13 @@ function RoClothes(Player)
 				if Removed == false then
 					local T = Property.T
 
-					PlayerData[PlayerName].OldTransparency[Part] = Part.Transparency
-					if PlayerData[PlayerName].RealtimeBodyTransparency == true then
-						Part.LocalTransparencyModifier = T
-					else
-						Part.Transparency = T
+					if T then
+						PlayerData[PlayerName].OldTransparency[Part] = Part.Transparency
+						if PlayerData[PlayerName].RealtimeBodyTransparency == true then
+							Part.LocalTransparencyModifier = T
+						else
+							Part.Transparency = T
+						end
 					end
 				end
 			end
@@ -13500,7 +13887,7 @@ function RoClothes(Player)
 		GUIObject.ViewportCamera.CFrame = CFrame.lookAt(Vector3.new(math.sin(PreviewRotate)*PreviewRadius, 0, math.cos(PreviewRotate)*PreviewRadius), Vector3.new(0,0,0))
 	end)
 
-	local PhysicsConnect = RS.Stepped:Connect(function(t, d)
+	local PhysicsConnect = RS.RenderStepped:Connect(function(d)
 		for PlayerName, DataList in pairs(PlayerData) do
 			for Part, Property in pairs(DataList.CurrentPartList.BodyPartPhysics) do
 				task.spawn(function()
@@ -13510,28 +13897,35 @@ function RoClothes(Player)
 						return
 					end
 
-					local Character = Player.Character
+					local Character = DataList.Character
+					local Human = Character:FindFirstChildOfClass("Humanoid")
 
-					if Character then
+					if Character and Human then
 						local Base = Property.Base
 						local Camera = game.Workspace.CurrentCamera
 
 						local CurrentCFrame = Base.CFrame
 
-						if (Camera.CFrame.Position - Base.Position).Magnitude < 300 then
+						local OriginCFrame = Property.OriginCFrame
+						local OriginPosition = OriginCFrame.Position
+						local CurrentPosition = CurrentCFrame.Position
+						local PositionDistance = (OriginPosition - CurrentPosition)
+
+						--[[local function Round(num: number, places: number): number
+							local decimalPivot = 10^places
+							return math.floor(num * decimalPivot + 0.5) / decimalPivot
+						end
+						print(Round(PositionDistance.Magnitude,2),math.max(Human.WalkSpeed/8,1),Round(Base.AssemblyLinearVelocity.Magnitude,2))]]
+						if (Camera.CFrame.Position - Base.Position).Magnitude < 300 
+							and (PositionDistance.Magnitude < math.max(Human.WalkSpeed/8,1) or PositionDistance.Magnitude <= Base.AssemblyLinearVelocity.Magnitude) then
 							local Weld = Property.Weld
 							local CF = Property.CF
 							local CF1 = Property.CF1
 							local Spring = Property.Spring
-							local OriginCFrame = Property.OriginCFrame
 							local PositionOffset = Property.PositionOffset
 							local RotationOffset = Property.RotationOffset
 							local Position = Property.Position
 							local Rotation = Property.Rotation
-
-							local OriginPosition = OriginCFrame.Position
-							local CurrentPosition = CurrentCFrame.Position
-							local PositionDistance = (OriginPosition - CurrentPosition)
 
 							local OriginLookVector = OriginCFrame.LookVector
 							local CurrentLookVector = CurrentCFrame.LookVector
@@ -13643,7 +14037,8 @@ function RoClothes(Player)
 								end
 
 							end
-
+						--[[else
+							warn("IT WENT ABOVE")]]
 						end
 
 						PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].OriginCFrame = CurrentCFrame
@@ -13688,6 +14083,7 @@ function RoClothes(Player)
 						PlayerData[NPCData] = cDataTable
 						Function.CharacterExecute(Part:FindFirstAncestorOfClass("Model"), NPCData)
 					else
+						Function.CharacterReset(Part:FindFirstAncestorOfClass("Model").Name)
 						Function.CharacterExecute(Part:FindFirstAncestorOfClass("Model"), Part:FindFirstAncestorOfClass("Model").Name)
 					end
 				end
@@ -13909,6 +14305,17 @@ function RoClothes(Player)
 
 			if Method > MaxMethod then
 				Method = 1
+			end
+
+			GUIObject.MethodButton.Text = "Method: "..Method
+
+			Function.GUIUpdate()
+		end)
+		local MethodConnect2 = GUIObject.MethodButton.MouseButton2Click:Connect(function()
+			Method -= 1
+
+			if Method < 1 then
+				Method = MaxMethod
 			end
 
 			GUIObject.MethodButton.Text = "Method: "..Method
@@ -14225,6 +14632,10 @@ function RoClothes(Player)
 				GUIObject.MeshNameTextbox.TextColor3 = Color3.new(1,1,1)
 
 				Function.GUIUpdate()
+			elseif Text == "DEBUG" then
+				GUIObject.MeshNameTextbox.TextColor3 = Color3.new(0,1,0)
+
+				Function.GUIUpdate()
 			else
 				GUIObject.MeshNameTextbox.TextColor3 = Color3.new(1,0,0)
 			end
@@ -14259,6 +14670,19 @@ function RoClothes(Player)
 			local function checkBundle(v)
 
 				if v.Preset then
+
+					if v.Preset["CatalogUsername"] or v.Preset["CatalogAccessory"] then
+
+						if GUIObject.Catalog_3:FindFirstChild(SelectPlayer) then
+							for i, v in pairs(GUIObject.Catalog_3:FindFirstChild(SelectPlayer):GetChildren()) do
+								if not v:IsA("UIGridLayout") then
+									v:Destroy()
+								end
+							end
+						end
+
+					end
+
 					for setting, value in pairs(v.Preset) do
 						if setting ~= "PositionPhysicsMultiply"
 							and setting ~= "RotationPhysicsMultiply"
@@ -14269,6 +14693,55 @@ function RoClothes(Player)
 									PlayerData[SelectPlayer][setting] = value
 								end
 								checkBundle(Bundle[value])
+							elseif setting == "CatalogUsername" then
+								PlayerData[SelectPlayer][setting] = value
+
+								pcall(function()
+									local UsernameId = game.Players:GetUserIdFromNameAsync(value)
+
+									local HumanoidDescription = game.Players:GetHumanoidDescriptionFromUserId(UsernameId)
+
+									for i, accessory in pairs(HumanoidDescription:GetAccessories(true)) do
+										if accessory and not (v.Preset.CatalogRemove and table.find(v.Preset.CatalogRemove, accessory.AssetId)) then
+											local AccessoryInfo = MPS:GetProductInfo(accessory.AssetId)
+
+											local Button = Function.ButtonCreate(AccessoryInfo.Name, GUIObject.Catalog_3:FindFirstChild(SelectPlayer))
+
+											local AccessoryRemoveButtonConnect
+											AccessoryRemoveButtonConnect = Button:FindFirstChildOfClass("TextButton").MouseButton1Click:Connect(function()
+												if not table.find(PlayerData[SelectPlayer].CatalogRemove, accessory.AssetId) then
+													table.insert(PlayerData[SelectPlayer].CatalogRemove, accessory.AssetId)
+												end
+
+												Button:Destroy()
+												AccessoryRemoveButtonConnect:Disconnect()
+											end)
+
+											table.insert(AllConnect, AccessoryRemoveButtonConnect)
+										end
+									end
+
+								end)
+							elseif setting == "CatalogAccessory" then
+								for i, x in pairs(value) do
+
+									local Button = Function.ButtonCreate(x, GUIObject.Catalog_3:FindFirstChild(SelectPlayer))
+
+									local AccessoryButtonConnect
+									AccessoryButtonConnect = Button:FindFirstChildOfClass("TextButton").MouseButton1Click:Connect(function()
+										for i, v in pairs(PlayerData[SelectPlayer].CatalogAccessory) do
+											if tonumber(v) == tonumber(Button.Name) then
+												table.remove(PlayerData[SelectPlayer].CatalogAccessory, i)
+											end
+										end
+
+										Button:Destroy()
+										AccessoryButtonConnect:Disconnect()
+									end)
+
+									table.insert(AllConnect, AccessoryButtonConnect)
+								end
+								PlayerData[SelectPlayer][setting] = value
 							else
 								PlayerData[SelectPlayer][setting] = value
 							end
@@ -14406,74 +14879,78 @@ function RoClothes(Player)
 				if not table.find(PlayerData[SelectPlayer].CurrentClothes, CButton.Name) then
 					table.insert(PlayerData[SelectPlayer].CurrentClothes, CButton.Name)
 
-					for i, v in pairs(Clothes[CButton.Name].Weld) do
-						if PartList[v] and PartList[v].Recolor then
-							if not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name] then
-								PlayerData[SelectPlayer].ClothesRecolor[CButton.Name] = {}
-								RecolorButtons[CButton.Name] = {}
-							end
-							if PartList[v].Recolor == "Primary" and not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] then
-								PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] = "nil"
-								local button = Function.ButtonCreate(CButton.Name, GUIObject.RecolorListFrame, true, {Color = PartList[v].Color.Color, Text = CButton.Name.. " PrimaryColor"})
-								button:FindFirstChildOfClass("UIAspectRatioConstraint"):Destroy()
+					if Clothes[CButton.Name].Weld then
 
-								button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
-								button:FindFirstChildOfClass("TextBox").Text = ""
-								local primaryChangeConnect = button:FindFirstChildOfClass("TextBox").FocusLost:Connect(function()
-									if button:FindFirstChildOfClass("TextBox").Text ~= "" then
-										local RGB = Function.StringTo(button:FindFirstChildOfClass("TextBox").Text, "RGB")
+						for i, v in pairs(Clothes[CButton.Name].Weld) do
+							if PartList[v] and PartList[v].Recolor then
+								if not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name] then
+									PlayerData[SelectPlayer].ClothesRecolor[CButton.Name] = {}
+									RecolorButtons[CButton.Name] = {}
+								end
+								if PartList[v].Recolor == "Primary" and not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] then
+									PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] = "nil"
+									local button = Function.ButtonCreate(CButton.Name, GUIObject.RecolorListFrame, true, {Color = PartList[v].Color.Color, Text = CButton.Name.. " PrimaryColor"})
+									button:FindFirstChildOfClass("UIAspectRatioConstraint"):Destroy()
 
-										button:FindFirstChildOfClass("TextBox").TextColor3 = RGB
-										PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] = RGB
-									else
-										PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] = "nil"
-										button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
-									end
-								end)
-								table.insert(RecolorButtons[CButton.Name],primaryChangeConnect)
-								table.insert(AllConnect,primaryChangeConnect)
-							elseif PartList[v].Recolor == "Secondary" and not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] then
-								PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] = "nil"
-								local button = Function.ButtonCreate(CButton.Name, GUIObject.RecolorListFrame, true, {Color = PartList[v].Color.Color, Text = CButton.Name.. " SecondaryColor"})
-								button:FindFirstChildOfClass("UIAspectRatioConstraint"):Destroy()
+									button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
+									button:FindFirstChildOfClass("TextBox").Text = ""
+									local primaryChangeConnect = button:FindFirstChildOfClass("TextBox").FocusLost:Connect(function()
+										if button:FindFirstChildOfClass("TextBox").Text ~= "" then
+											local RGB = Function.StringTo(button:FindFirstChildOfClass("TextBox").Text, "RGB")
 
-								button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
-								button:FindFirstChildOfClass("TextBox").Text = ""
-								local secondaryChangeConnect = button:FindFirstChildOfClass("TextBox").FocusLost:Connect(function()
-									if button:FindFirstChildOfClass("TextBox").Text ~= "" then
-										local RGB = Function.StringTo(button:FindFirstChildOfClass("TextBox").Text, "RGB")
+											button:FindFirstChildOfClass("TextBox").TextColor3 = RGB
+											PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] = RGB
+										else
+											PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Primary"] = "nil"
+											button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
+										end
+									end)
+									table.insert(RecolorButtons[CButton.Name],primaryChangeConnect)
+									table.insert(AllConnect,primaryChangeConnect)
+								elseif PartList[v].Recolor == "Secondary" and not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] then
+									PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] = "nil"
+									local button = Function.ButtonCreate(CButton.Name, GUIObject.RecolorListFrame, true, {Color = PartList[v].Color.Color, Text = CButton.Name.. " SecondaryColor"})
+									button:FindFirstChildOfClass("UIAspectRatioConstraint"):Destroy()
 
-										button:FindFirstChildOfClass("TextBox").TextColor3 = RGB
-										PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] = RGB
-									else
-										PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] = "nil"
-										button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
-									end
-								end)
-								table.insert(RecolorButtons[CButton.Name],secondaryChangeConnect)
-								table.insert(AllConnect,secondaryChangeConnect)
-							elseif PartList[v].Recolor == "Tertiary" and not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] then
-								PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] = "nil"
-								local button = Function.ButtonCreate(CButton.Name, GUIObject.RecolorListFrame, true, {Color = PartList[v].Color.Color, Text = CButton.Name.. " TertiaryColor"})
-								button:FindFirstChildOfClass("UIAspectRatioConstraint"):Destroy()
+									button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
+									button:FindFirstChildOfClass("TextBox").Text = ""
+									local secondaryChangeConnect = button:FindFirstChildOfClass("TextBox").FocusLost:Connect(function()
+										if button:FindFirstChildOfClass("TextBox").Text ~= "" then
+											local RGB = Function.StringTo(button:FindFirstChildOfClass("TextBox").Text, "RGB")
 
-								button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
-								button:FindFirstChildOfClass("TextBox").Text = ""
-								local tertiaryChangeConnect = button:FindFirstChildOfClass("TextBox").FocusLost:Connect(function()
-									if button:FindFirstChildOfClass("TextBox").Text ~= "" then
-										local RGB = Function.StringTo(button:FindFirstChildOfClass("TextBox").Text, "RGB")
+											button:FindFirstChildOfClass("TextBox").TextColor3 = RGB
+											PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] = RGB
+										else
+											PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Secondary"] = "nil"
+											button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
+										end
+									end)
+									table.insert(RecolorButtons[CButton.Name],secondaryChangeConnect)
+									table.insert(AllConnect,secondaryChangeConnect)
+								elseif PartList[v].Recolor == "Tertiary" and not PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] then
+									PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] = "nil"
+									local button = Function.ButtonCreate(CButton.Name, GUIObject.RecolorListFrame, true, {Color = PartList[v].Color.Color, Text = CButton.Name.. " TertiaryColor"})
+									button:FindFirstChildOfClass("UIAspectRatioConstraint"):Destroy()
 
-										button:FindFirstChildOfClass("TextBox").TextColor3 = RGB
-										PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] = RGB
-									else
-										PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] = "nil"
-										button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
-									end
-								end)
-								table.insert(RecolorButtons[CButton.Name],tertiaryChangeConnect)
-								table.insert(AllConnect,tertiaryChangeConnect)
+									button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
+									button:FindFirstChildOfClass("TextBox").Text = ""
+									local tertiaryChangeConnect = button:FindFirstChildOfClass("TextBox").FocusLost:Connect(function()
+										if button:FindFirstChildOfClass("TextBox").Text ~= "" then
+											local RGB = Function.StringTo(button:FindFirstChildOfClass("TextBox").Text, "RGB")
+
+											button:FindFirstChildOfClass("TextBox").TextColor3 = RGB
+											PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] = RGB
+										else
+											PlayerData[SelectPlayer].ClothesRecolor[CButton.Name]["Tertiary"] = "nil"
+											button:FindFirstChildOfClass("TextBox").TextColor3 = PartList[v].Color.Color
+										end
+									end)
+									table.insert(RecolorButtons[CButton.Name],tertiaryChangeConnect)
+									table.insert(AllConnect,tertiaryChangeConnect)
+								end
 							end
 						end
+
 					end
 
 				else
@@ -14653,6 +15130,7 @@ function RoClothes(Player)
 		table.insert(AllConnect, BodyPartPhysicsConnect)
 		table.insert(AllConnect, UsernameConnect)
 		table.insert(AllConnect, MethodConnect)
+		table.insert(AllConnect, MethodConnect2)
 		table.insert(AllConnect, KeybindConnect)
 		table.insert(AllConnect, ToneConnect)
 		table.insert(AllConnect, ShirtConnect)
@@ -16896,7 +17374,7 @@ function RoClothes(Player)
 
 	if not UIS.KeyboardEnabled then
 		GUIObject.MobileCloseButtonScreen.Enabled = true
-		Method = 2
+		--Method = 2
 	end
 
 	Function.CatalogAccessoryFrameAdd(SelectPlayer)
@@ -16963,7 +17441,7 @@ function RoClothes(Player)
 	oload.Transparency = 1
 	oload.ImageTransparency = .999
 	local load = Instance.new("ImageLabel",loadui)
-	load.Image = "rbxasset://RClothesContent/loadv6.png"
+	load.Image = "rbxasset://RClothesContent/loadv7.png"
 	load.Size = UDim2.new(1,0,1,0)
 	load.Transparency = 1
 	load.ImageTransparency = .999
