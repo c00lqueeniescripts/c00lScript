@@ -1,0 +1,23 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- Cria a plataforma
+local platform = Instance.new("Part")
+platform.Size = Vector3.new(8, 1, 8)
+platform.Anchored = true
+platform.CanCollide = true
+platform.Color = Color3.fromRGB(50, 200, 255)
+platform.Transparency = 0.3
+platform.Name = "FloatPlatform"
+platform.Parent = workspace
+
+-- Segue o jogador
+RunService.RenderStepped:Connect(function()
+	if hrp then
+		platform.CFrame = hrp.CFrame * CFrame.new(0, -4, 0)
+	end
+end)
