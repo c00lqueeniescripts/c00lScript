@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 -- Configurações
-local jumpBoost = 60 -- altura do pulo (padrão Roblox = 50)
+local jumpBoost = 70 -- altura do pulo (padrão Roblox = 50)
 local platformHeight = -4 -- altura da plataforma em relação ao player
 
 -- Função que cria a plataforma e aumenta o jump
