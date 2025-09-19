@@ -2,22 +2,47 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
 
--- Cria a plataforma
-local platform = Instance.new("Part")
-platform.Size = Vector3.new(8, 1, 8)
-platform.Anchored = true
-platform.CanCollide = true
-platform.Color = Color3.fromRGB(50, 200, 255)
-platform.Transparency = 0.3
-platform.Name = "FloatPlatform"
-platform.Parent = workspace
+-- Configurações
+local jumpBoost = 60 -- altura do pulo (padrão Roblox = 50)
+local platformHeight = -4 -- altura da plataforma em relação ao player
 
--- Segue o jogador
-RunService.RenderStepped:Connect(function()
-	if hrp then
-		platform.CFrame = hrp.CFrame * CFrame.new(0, -4, 0)
-	end
+-- Função que cria a plataforma e aumenta o jump
+local function createPlatform(char)
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local humanoid = char:WaitForChild("Humanoid")
+
+	-- Aumenta o pulo
+	humanoid.UseJumpPower = true
+	humanoid.JumpPower = jumpBoost
+
+	-- Cria a plataforma
+	local platform = Instance.new("Part")
+	platform.Size = Vector3.new(8, 1, 8)
+	platform.Anchored = true
+	platform.CanCollide = true
+	platform.Color = Color3.fromRGB(50, 200, 255) -- cor visível
+	platform.Transparency = 0 -- totalmente visível
+	platform.Name = "FloatPlatform"
+	platform.Parent = workspace
+	platform.CanTouch = false
+	platform.CanQuery = false
+
+	-- Faz a plataforma seguir o player
+	RunService.RenderStepped:Connect(function()
+		if hrp and platform and platform.Parent then
+			platform.CFrame = hrp.CFrame * CFrame.new(0, platformHeight, 0)
+		end
+	end)
+end
+
+-- Quando o personagem spawnar
+player.CharacterAdded:Connect(function(char)
+	char:WaitForChild("HumanoidRootPart")
+	createPlatform(char)
 end)
+
+-- Caso o player já esteja spawnado quando o script rodar
+if player.Character then
+	createPlatform(player.Character)
+end
